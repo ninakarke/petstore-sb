@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<!--/*
+  Page layout shared by every page.
+
+  Replaces the legacy template.jsp, the template servlet and the per-screen
+  entries of screendefinitions_<locale>.xml. A page supplies its title and its
+  main content; banner, sidebar and footer come from fragments.
+
+  Usage in a page:
+    <html th:replace="~{layout/main :: page(~{::title}, ~{::main})}">
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="page(title, content)" th:lang="${#locale.toLanguageTag()}" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:replace="${title}">Pet Store</title>
+    <link rel="stylesheet" th:href="@{/css/petstore.css}" href="../../static/css/petstore.css" />
+  </head>
+  <body>
+    <header th:replace="~{fragments/banner :: banner}"></header>
+    <div class="page">
+      <div class="content" th:insert="${content}"></div>
+    </div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+  </body>
+</html>

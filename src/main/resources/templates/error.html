@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<!--/*
+  Generic error page.
+
+  Legacy equivalent: general_error.jsp, which printed the exception message and
+  its stack trace to the browser (and was unreachable because of a broken
+  mapping). This page shows a message only; details go to the server log.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{error.title}">General Error</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:text="#{error.title}">General Error</h1>
+      <p th:if="${status == 404}" th:text="#{error.notFound}">The page you asked for does not exist.</p>
+      <p th:unless="${status == 404}" th:text="#{error.general}">
+        Something went wrong while handling your request.
+      </p>
+      <p><a th:href="@{/}" href="/" th:text="#{error.backHome}">Back to the home page</a></p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<!--/* Legacy equivalent: the "main" screen (main.jsp). */-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{home.title}">Welcome to the BluePrints Petstore</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:text="#{home.title}">Welcome to the BluePrints Petstore</h1>
+    </main>
+  </body>
+</html>

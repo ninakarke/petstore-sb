@@ -1,0 +1,66 @@
+/*
+ * Storefront styles.
+ *
+ * Keeps the look of the legacy pages (Helvetica, small type, teal panel
+ * headings) but lays the page out with CSS instead of nested tables.
+ */
+
+:root {
+  --petstore-teal: #336666;
+  --petstore-text: #222222;
+  --petstore-rule: #999999;
+}
+
+body {
+  margin: 0;
+  padding: 0 1rem;
+  color: var(--petstore-text);
+  background: #ffffff;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+}
+
+a {
+  color: #003399;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--petstore-rule);
+}
+
+.banner-logo {
+  color: var(--petstore-teal);
+  font-size: 1.6rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.page {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  padding: 1rem 0;
+  min-height: 60vh;
+}
+
+.content {
+  flex: 1 1 60%;
+  min-width: 0;
+}
+
+.content h1 {
+  margin-top: 0;
+  font-size: 1.2rem;
+}
+
+.footer {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--petstore-rule);
+  font-size: 0.75rem;
+  text-align: center;
+}
