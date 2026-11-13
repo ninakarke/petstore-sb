@@ -11,7 +11,6 @@ import com.petstore.catalog.internal.CatalogStore.ItemDetails;
 import com.petstore.catalog.internal.CatalogStore.ProductText;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,9 +28,6 @@ import org.junit.jupiter.api.Test;
  */
 public abstract class CatalogStoreContract {
 
-  protected static final String EN = "en_US";
-  protected static final String JA = "ja_JP";
-
   /** The adapter under test. */
   protected abstract CatalogStore store();
 
@@ -43,101 +39,70 @@ public abstract class CatalogStoreContract {
     emptyTheStore();
     CatalogStore store = store();
 
-    store.saveCategory("FISH", Map.of(EN, category("Fish"), JA, category("魚"))); // 魚
-    store.saveCategory("DOGS", Map.of(EN, category("Dogs")));
-    store.saveCategory("BIRDS", Map.of(EN, category("Birds"), JA, category("鳥"))); // 鳥
+    store.saveCategory("FISH", category("Fish"));
+    store.saveCategory("DOGS", category("Dogs"));
+    store.saveCategory("BIRDS", category("Birds"));
 
+    store.saveProduct("FI-SW-01", "FISH", product("Angelfish", "Salt Water fish from Australia"));
+    store.saveProduct("FI-SW-02", "FISH", product("Tiger Shark", "Salt Water fish from Australia"));
+    store.saveProduct("FI-FW-01", "FISH", product("Koi", "Fresh Water fish from Japan"));
+    store.saveProduct("K9-BD-01", "DOGS", product("Bulldog", "Friendly dog from England"));
     store.saveProduct(
-        "FI-SW-01",
-        "FISH",
-        Map.of(
-            EN, product("Angelfish", "Salt Water fish from Australia"),
-            JA, product("エンゼルフィッシュ", "海水魚")));
-    store.saveProduct(
-        "FI-SW-02", "FISH", Map.of(EN, product("Tiger Shark", "Salt Water fish from Australia")));
-    store.saveProduct(
-        "FI-FW-01", "FISH", Map.of(EN, product("Koi", "Fresh Water fish from Japan")));
-    store.saveProduct(
-        "K9-BD-01", "DOGS", Map.of(EN, product("Bulldog", "Friendly dog from England")));
-    store.saveProduct(
-        "AV-CB-01",
-        "BIRDS",
-        Map.of(EN, product("Amazon Parrot", "Great companion for up to 75 years")));
+        "AV-CB-01", "BIRDS", product("Amazon Parrot", "Great companion for up to 75 years"));
 
     store.saveItem(
         "EST-1",
         "FI-SW-01",
-        Map.of(
-            EN, item("16.50", "10.00", "Fresh Water fish from Japan", "Large", "Cuddly"),
-            JA, item("1951", "1551", "日本産の淡水魚", "大")));
+        item("16.50", "10.00", "Fresh Water fish from Japan", "Large", "Cuddly"));
     store.saveItem(
-        "EST-2",
-        "FI-SW-01",
-        Map.of(EN, item("16.50", "10.00", "Fresh Water fish from Japan", "Small")));
+        "EST-2", "FI-SW-01", item("16.50", "10.00", "Fresh Water fish from Japan", "Small"));
+    store.saveItem("EST-3", "FI-SW-01", item("18.50", "12.00", "Now 50% off", "Toothless"));
+    store.saveItem("EST-4", "FI-SW-02", item("18.50", "12.00", "Tagged as big_fish", "Spotted"));
     store.saveItem(
-        "EST-3", "FI-SW-01", Map.of(EN, item("18.50", "12.00", "Now 50% off", "Toothless")));
-    store.saveItem(
-        "EST-4", "FI-SW-02", Map.of(EN, item("18.50", "12.00", "Tagged as big_fish", "Spotted")));
-    store.saveItem(
-        "EST-6",
-        "K9-BD-01",
-        Map.of(EN, item("18.50", "12.00", "Friendly dog from England", "Male Adult")));
+        "EST-6", "K9-BD-01", item("18.50", "12.00", "Friendly dog from England", "Male Adult"));
     store.saveItem(
         "EST-18",
         "AV-CB-01",
-        Map.of(EN, item("193.50", "92.00", "Great companion for up to 75 years", "Adult Male")));
+        item("193.50", "92.00", "Great companion for up to 75 years", "Adult Male"));
   }
 
-  // ---- categories (legacy GET_CATEGORY, GET_CATEGORIES) --------------------------------
+  // ---- categories (legacy GET_CATEGORY, GET_CATEGORIES) --------------------------------------
 
   @Test
-  void categoryIsReturnedInTheRequestedLocale() {
-    assertThat(store().findCategory("FISH", EN)).contains(new Category("FISH", "Fish", null));
-    assertThat(store().findCategory("FISH", JA)).contains(new Category("FISH", "魚", null));
+  void categoryIsFoundByItsId() {
+    assertThat(store().findCategory("FISH")).contains(new Category("FISH", "Fish", null));
   }
 
   @Test
   void unknownCategoryIsAbsent() {
-    assertThat(store().findCategory("CATS", EN)).isEmpty();
-  }
-
-  @Test
-  void categoryWithoutTextInTheLocaleIsAbsent() {
-    assertThat(store().findCategory("DOGS", JA)).isEmpty();
+    assertThat(store().findCategory("CATS")).isEmpty();
   }
 
   @Test
   @DisplayName("legacy: categories are ordered by name")
   void categoriesAreOrderedByName() {
-    assertThat(store().findCategories(EN))
+    assertThat(store().findCategories())
         .extracting(Category::name)
         .containsExactly("Birds", "Dogs", "Fish");
   }
 
-  @Test
-  void onlyCategoriesWithTextInTheLocaleAreListed() {
-    assertThat(store().findCategories(JA))
-        .extracting(Category::id)
-        .containsExactly("FISH", "BIRDS");
-  }
-
-  // ---- products (legacy GET_PRODUCT, GET_PRODUCTS) -------------------------------------
+  // ---- products (legacy GET_PRODUCT, GET_PRODUCTS) -------------------------------------------
 
   @Test
-  void productIsReturnedInTheRequestedLocale() {
-    assertThat(store().findProduct("FI-SW-01", EN))
+  void productIsFoundByItsId() {
+    assertThat(store().findProduct("FI-SW-01"))
         .contains(new Product("FI-SW-01", "Angelfish", "Salt Water fish from Australia"));
   }
 
   @Test
   void unknownProductIsAbsent() {
-    assertThat(store().findProduct("XX-00", EN)).isEmpty();
+    assertThat(store().findProduct("XX-00")).isEmpty();
   }
 
   @Test
   @DisplayName("legacy: products of a category are ordered by name")
   void productsOfACategoryAreOrderedByName() {
-    Page<Product> page = store().findProducts("FISH", EN, 0, 10);
+    Page<Product> page = store().findProducts("FISH", 0, 10);
 
     assertThat(page.items())
         .extracting(Product::name)
@@ -147,7 +112,7 @@ public abstract class CatalogStoreContract {
 
   @Test
   void productsOfOtherCategoriesAreNotListed() {
-    assertThat(store().findProducts("DOGS", EN, 0, 10).items())
+    assertThat(store().findProducts("DOGS", 0, 10).items())
         .extracting(Product::id)
         .containsExactly("K9-BD-01");
   }
@@ -155,7 +120,7 @@ public abstract class CatalogStoreContract {
   @Test
   @DisplayName("legacy: a full page reports that more results follow")
   void firstPageReportsThatMoreFollow() {
-    Page<Product> page = store().findProducts("FISH", EN, 0, 2);
+    Page<Product> page = store().findProducts("FISH", 0, 2);
 
     assertThat(page.items()).extracting(Product::name).containsExactly("Angelfish", "Koi");
     assertThat(page.start()).isZero();
@@ -165,7 +130,7 @@ public abstract class CatalogStoreContract {
   @Test
   @DisplayName("legacy: the last page reports that nothing follows")
   void lastPageReportsThatNothingFollows() {
-    Page<Product> page = store().findProducts("FISH", EN, 2, 2);
+    Page<Product> page = store().findProducts("FISH", 2, 2);
 
     assertThat(page.items()).extracting(Product::name).containsExactly("Tiger Shark");
     assertThat(page.start()).isEqualTo(2);
@@ -175,34 +140,27 @@ public abstract class CatalogStoreContract {
   @Test
   @DisplayName("legacy: a start beyond the last result gives the empty page")
   void startBeyondTheEndGivesTheEmptyPage() {
-    assertThat(store().findProducts("FISH", EN, 10, 2)).isEqualTo(Page.empty());
+    assertThat(store().findProducts("FISH", 10, 2)).isEqualTo(Page.empty());
   }
 
   @Test
   @DisplayName("names are ordered by code point on every store: capitals before lower-case")
   void namesAreOrderedByCodePointOnEveryStore() {
-    store().saveCategory("CASE", Map.of(EN, category("Case")));
-    store().saveProduct("CS-01", "CASE", Map.of(EN, product("albino Finch", "Rare")));
-    store().saveProduct("CS-02", "CASE", Map.of(EN, product("Zebra Finch", "Common")));
+    store().saveCategory("CASE", category("Case"));
+    store().saveProduct("CS-01", "CASE", product("albino Finch", "Rare"));
+    store().saveProduct("CS-02", "CASE", product("Zebra Finch", "Common"));
 
     // A language-aware sort would put "albino" first and move both products to other pages.
-    assertThat(store().findProducts("CASE", EN, 0, 10).items())
+    assertThat(store().findProducts("CASE", 0, 10).items())
         .extracting(Product::name)
         .containsExactly("Zebra Finch", "albino Finch");
   }
 
-  @Test
-  void onlyProductsWithTextInTheLocaleAreListed() {
-    assertThat(store().findProducts("FISH", JA, 0, 10).items())
-        .extracting(Product::id)
-        .containsExactly("FI-SW-01");
-  }
-
-  // ---- items (legacy GET_ITEM, GET_ITEMS) ----------------------------------------------
+  // ---- items (legacy GET_ITEM, GET_ITEMS) ----------------------------------------------------
 
   @Test
   void itemCarriesItsProductCategoryTextAndPrices() {
-    Item item = store().findItem("EST-1", EN).orElseThrow();
+    Item item = store().findItem("EST-1").orElseThrow();
 
     assertThat(item.itemId()).isEqualTo("EST-1");
     assertThat(item.productId()).isEqualTo("FI-SW-01");
@@ -216,29 +174,14 @@ public abstract class CatalogStoreContract {
   }
 
   @Test
-  @DisplayName("legacy: text and prices are stored per locale")
-  void itemIsReturnedInTheRequestedLocale() {
-    Item item = store().findItem("EST-1", JA).orElseThrow();
-
-    assertThat(item.productName()).isEqualTo("エンゼルフィッシュ");
-    assertThat(item.attributes()).containsExactly("大");
-    assertThat(item.listPrice()).isEqualByComparingTo("1951");
-  }
-
-  @Test
   void unknownItemIsAbsent() {
-    assertThat(store().findItem("EST-99", EN)).isEmpty();
-  }
-
-  @Test
-  void itemWithoutDetailsInTheLocaleIsAbsent() {
-    assertThat(store().findItem("EST-2", JA)).isEmpty();
+    assertThat(store().findItem("EST-99")).isEmpty();
   }
 
   @Test
   @DisplayName("fixed: items of a product come in a defined order, by item id")
   void itemsOfAProductAreOrderedByItemId() {
-    Page<Item> page = store().findItems("FI-SW-01", EN, 0, 10);
+    Page<Item> page = store().findItems("FI-SW-01", 0, 10);
 
     assertThat(page.items()).extracting(Item::itemId).containsExactly("EST-1", "EST-2", "EST-3");
     assertThat(page.items()).extracting(Item::productId).containsOnly("FI-SW-01");
@@ -247,8 +190,8 @@ public abstract class CatalogStoreContract {
 
   @Test
   void itemsArePaged() {
-    Page<Item> first = store().findItems("FI-SW-01", EN, 0, 2);
-    Page<Item> second = store().findItems("FI-SW-01", EN, first.nextStart(), 2);
+    Page<Item> first = store().findItems("FI-SW-01", 0, 2);
+    Page<Item> second = store().findItems("FI-SW-01", first.nextStart(), 2);
 
     assertThat(first.items()).extracting(Item::itemId).containsExactly("EST-1", "EST-2");
     assertThat(first.hasNext()).isTrue();
@@ -256,7 +199,7 @@ public abstract class CatalogStoreContract {
     assertThat(second.hasNext()).isFalse();
   }
 
-  // ---- search (legacy SEARCH_ITEMS) ----------------------------------------------------
+  // ---- search (legacy SEARCH_ITEMS) ----------------------------------------------------------
 
   @Test
   @DisplayName("legacy: a keyword is matched as a substring of the product name")
@@ -299,17 +242,9 @@ public abstract class CatalogStoreContract {
   }
 
   @Test
-  void searchesOnlyTheRequestedLocale() {
-    assertThat(store().searchItems(Set.of("angel"), JA, 0, 10)).isEqualTo(Page.empty());
-    assertThat(store().searchItems(Set.of("エンゼル"), JA, 0, 10).items())
-        .extracting(Item::itemId)
-        .containsExactly("EST-1");
-  }
-
-  @Test
   void searchResultsArePaged() {
-    Page<Item> first = store().searchItems(Set.of("fish"), EN, 0, 2);
-    Page<Item> second = store().searchItems(Set.of("fish"), EN, first.nextStart(), 2);
+    Page<Item> first = store().searchItems(Set.of("fish"), 0, 2);
+    Page<Item> second = store().searchItems(Set.of("fish"), first.nextStart(), 2);
 
     assertThat(first.items()).extracting(Item::itemId).containsExactly("EST-1", "EST-2");
     assertThat(first.hasNext()).isTrue();
@@ -319,16 +254,14 @@ public abstract class CatalogStoreContract {
 
   @Test
   void noMatchGivesTheEmptyPage() {
-    assertThat(store().searchItems(Set.of("unicorn"), EN, 0, 10)).isEqualTo(Page.empty());
+    assertThat(store().searchItems(Set.of("unicorn"), 0, 10)).isEqualTo(Page.empty());
   }
 
   private List<String> search(String... keywords) {
-    return store().searchItems(Set.of(keywords), EN, 0, 10).items().stream()
-        .map(Item::itemId)
-        .toList();
+    return store().searchItems(Set.of(keywords), 0, 10).items().stream().map(Item::itemId).toList();
   }
 
-  // ---- loading -------------------------------------------------------------------------
+  // ---- loading -------------------------------------------------------------------------------
 
   @Test
   void storeWithDataIsNotEmpty() {

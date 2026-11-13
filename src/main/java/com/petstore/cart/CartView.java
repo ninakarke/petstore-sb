@@ -3,10 +3,7 @@ package com.petstore.cart;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * The content of the cart as it is shown and ordered: its lines in the visitor's language, with
- * current prices.
- */
+/** The content of the cart as it is shown and ordered: its lines, with current names and prices. */
 public record CartView(List<CartLine> lines) {
 
   public CartView {

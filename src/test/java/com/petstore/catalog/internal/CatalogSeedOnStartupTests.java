@@ -16,9 +16,9 @@ class CatalogSeedOnStartupTests {
   @Test
   void catalogIsLoadedWhenTheApplicationStartsOnAnEmptyDatabase() {
     assertThat(store.isEmpty()).isFalse();
-    assertThat(store.findCategories("en_US"))
+    assertThat(store.findCategories())
         .extracting(Category::name)
         .containsExactly("Birds", "Cats", "Dogs", "Fish", "Reptiles");
-    assertThat(store.findItem("EST-1", "zh_CN")).isPresent();
+    assertThat(store.findItem("EST-1")).isPresent();
   }
 }

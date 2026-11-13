@@ -1,8 +1,9 @@
 -- Catalog schema.
 --
 -- Carried over from the legacy populate/PopulateSQL.xml, table for table and
--- column for column, so that existing data fits unchanged. Text and prices
--- are stored once per locale (en_US, ja_JP, zh_CN) in the *_details tables.
+-- column for column, so that existing data fits unchanged. The legacy
+-- design stores text and prices once per locale in the *_details tables.
+-- This application is English only and uses the en_US rows.
 --
 -- Differences from the legacy DDL:
 --   * varchar instead of fixed-width char for ids and locale. The legacy

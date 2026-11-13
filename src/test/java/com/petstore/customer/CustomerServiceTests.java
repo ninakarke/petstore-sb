@@ -58,7 +58,7 @@ class CustomerServiceTests {
                 "duke@example.com",
                 "408-555-5555"),
             new CreditCard("0100-001-0001", "Duke Express", "10/2031"),
-            new Profile("ja_JP", "DOGS", false, true));
+            new Profile("en_US", "DOGS", false, true));
 
     Customer updated = customers.update("duke", changed);
 
@@ -159,22 +159,20 @@ class CustomerServiceTests {
                         CustomerField.CARD_NUMBER,
                         CustomerField.CARD_TYPE,
                         CustomerField.CARD_EXPIRY,
-                        CustomerField.LANGUAGE,
                         CustomerField.FAVORITE_CATEGORY));
   }
 
   @Test
-  void languageMustBeOneTheStoreIsOfferedIn() {
-    CustomerDetails german =
+  @DisplayName("the store is English only: a profile without a language gets en_US")
+  void profileWithoutALanguageGetsEnglish() {
+    CustomerDetails noLanguage =
         new CustomerDetails(
             CustomerFixtures.contactInfo(),
             CustomerFixtures.creditCard(),
-            new Profile("de_DE", "DOGS", true, true));
+            new Profile("", "DOGS", true, true));
 
-    assertThatThrownBy(() -> customers.create("duke", german))
-        .isInstanceOfSatisfying(
-            InvalidCustomerException.class,
-            invalid -> assertThat(invalid.fields()).containsExactly(CustomerField.LANGUAGE));
+    assertThat(customers.create("duke", noLanguage).profile().preferredLanguage())
+        .isEqualTo("en_US");
   }
 
   @Test

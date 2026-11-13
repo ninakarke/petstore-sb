@@ -1,7 +1,7 @@
 package com.petstore.customer;
 
 import com.petstore.customer.internal.CustomerStore;
-import com.petstore.shared.SupportedLocale;
+import com.petstore.shared.StoreLocale;
 import java.util.EnumSet;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -91,7 +91,7 @@ public class CustomerService {
             trim(contact.telephone())),
         new CreditCard(trim(card.cardNumber()), trim(card.cardType()), trim(card.expiryDate())),
         new Profile(
-            trim(profile.preferredLanguage()),
+            language(profile.preferredLanguage()),
             trim(profile.favoriteCategory()),
             profile.myListPreference(),
             profile.bannerPreference()));
@@ -123,9 +123,6 @@ public class CustomerService {
       problems.add(CustomerField.CARD_EXPIRY);
     }
     require(profile.favoriteCategory(), CustomerField.FAVORITE_CATEGORY, problems);
-    if (SupportedLocale.fromCode(profile.preferredLanguage()).isEmpty()) {
-      problems.add(CustomerField.LANGUAGE);
-    }
     tooLong(address.streetName2(), CustomerField.STREET_ADDRESS, problems);
     tooLong(contact.email(), CustomerField.EMAIL, problems);
 
@@ -145,6 +142,14 @@ public class CustomerService {
     if (value != null && value.length() > MAX_LENGTH) {
       problems.add(field);
     }
+  }
+
+  /**
+   * The store is English only, so a profile without a language gets the English code. A value that
+   * is already stored, such as on the seed customers, is left as it is; nothing reads it.
+   */
+  private static String language(String value) {
+    return value == null || value.isBlank() ? StoreLocale.CODE : value.trim();
   }
 
   private static String trim(String value) {

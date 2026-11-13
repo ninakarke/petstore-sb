@@ -5,12 +5,12 @@ import com.petstore.catalog.Item;
 import com.petstore.catalog.Page;
 import com.petstore.catalog.Product;
 import com.petstore.catalog.internal.CatalogStore;
+import com.petstore.shared.StoreLocale;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -22,7 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>Replaces the legacy {@code GenericCatalogDAO}. Each query below is the JPQL form of one
  * statement of the legacy {@code CatalogDAOSQL.xml}, with the same joins and the same locale
- * filter. Three things differ on purpose:
+ * filter. The tables keep the legacy per-locale layout; this adapter always reads and writes the
+ * English rows. Three things differ from the legacy statements on purpose:
  *
  * <ul>
  *   <li>item lists and search results have an {@code order by}; the legacy statements had none, so
@@ -36,6 +37,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional(readOnly = true)
 class JpaCatalogStore implements CatalogStore {
+
+  /** The value of the {@code locale} column for the rows this application uses. */
+  private static final String LOCALE = StoreLocale.CODE;
 
   private static final String ITEM_SELECT =
       """
@@ -62,7 +66,7 @@ class JpaCatalogStore implements CatalogStore {
 
   /** Legacy statement: {@code GET_CATEGORY}. */
   @Override
-  public Optional<Category> findCategory(String categoryId, String locale) {
+  public Optional<Category> findCategory(String categoryId) {
     return entityManager
         .createQuery(
             """
@@ -73,7 +77,7 @@ class JpaCatalogStore implements CatalogStore {
                and c.id = :categoryId
             """,
             Category.class)
-        .setParameter("locale", locale)
+        .setParameter("locale", LOCALE)
         .setParameter("categoryId", categoryId)
         .getResultStream()
         .findFirst();
@@ -81,7 +85,7 @@ class JpaCatalogStore implements CatalogStore {
 
   /** Legacy statement: {@code GET_CATEGORIES}. */
   @Override
-  public List<Category> findCategories(String locale) {
+  public List<Category> findCategories() {
     return entityManager
         .createQuery(
             """
@@ -92,13 +96,13 @@ class JpaCatalogStore implements CatalogStore {
              order by d.name, c.id
             """,
             Category.class)
-        .setParameter("locale", locale)
+        .setParameter("locale", LOCALE)
         .getResultList();
   }
 
   /** Legacy statement: {@code GET_PRODUCT}. */
   @Override
-  public Optional<Product> findProduct(String productId, String locale) {
+  public Optional<Product> findProduct(String productId) {
     return entityManager
         .createQuery(
             """
@@ -109,7 +113,7 @@ class JpaCatalogStore implements CatalogStore {
                and p.id = :productId
             """,
             Product.class)
-        .setParameter("locale", locale)
+        .setParameter("locale", LOCALE)
         .setParameter("productId", productId)
         .getResultStream()
         .findFirst();
@@ -117,7 +121,7 @@ class JpaCatalogStore implements CatalogStore {
 
   /** Legacy statement: {@code GET_PRODUCTS}. */
   @Override
-  public Page<Product> findProducts(String categoryId, String locale, int start, int count) {
+  public Page<Product> findProducts(String categoryId, int start, int count) {
     TypedQuery<Product> query =
         entityManager
             .createQuery(
@@ -130,17 +134,17 @@ class JpaCatalogStore implements CatalogStore {
                  order by d.name, p.id
                 """,
                 Product.class)
-            .setParameter("locale", locale)
+            .setParameter("locale", LOCALE)
             .setParameter("categoryId", categoryId);
     return page(query, start, count, Function.identity());
   }
 
   /** Legacy statement: {@code GET_ITEM}. */
   @Override
-  public Optional<Item> findItem(String itemId, String locale) {
+  public Optional<Item> findItem(String itemId) {
     return entityManager
         .createQuery(ITEM_SELECT + " and i.id = :itemId", ItemRow.class)
-        .setParameter("locale", locale)
+        .setParameter("locale", LOCALE)
         .setParameter("itemId", itemId)
         .getResultStream()
         .findFirst()
@@ -149,11 +153,11 @@ class JpaCatalogStore implements CatalogStore {
 
   /** Legacy statement: {@code GET_ITEMS}. */
   @Override
-  public Page<Item> findItems(String productId, String locale, int start, int count) {
+  public Page<Item> findItems(String productId, int start, int count) {
     TypedQuery<ItemRow> query =
         entityManager
             .createQuery(ITEM_SELECT + " and i.productId = :productId order by i.id", ItemRow.class)
-            .setParameter("locale", locale)
+            .setParameter("locale", LOCALE)
             .setParameter("productId", productId);
     return page(query, start, count, ItemRow::toItem);
   }
@@ -163,7 +167,7 @@ class JpaCatalogStore implements CatalogStore {
    * joined by {@code or}, exactly as the legacy statement was assembled from its fragments.
    */
   @Override
-  public Page<Item> searchItems(Set<String> keywords, String locale, int start, int count) {
+  public Page<Item> searchItems(Set<String> keywords, int start, int count) {
     List<String> patterns = keywords.stream().map(JpaCatalogStore::likePattern).toList();
 
     StringBuilder jpql = new StringBuilder(ITEM_SELECT).append(" and (");
@@ -182,7 +186,7 @@ class JpaCatalogStore implements CatalogStore {
     jpql.append(") order by i.id");
 
     TypedQuery<ItemRow> query =
-        entityManager.createQuery(jpql.toString(), ItemRow.class).setParameter("locale", locale);
+        entityManager.createQuery(jpql.toString(), ItemRow.class).setParameter("locale", LOCALE);
     for (int i = 0; i < patterns.size(); i++) {
       query.setParameter("k" + i, patterns.get(i));
     }
@@ -231,43 +235,39 @@ class JpaCatalogStore implements CatalogStore {
 
   @Override
   @Transactional
-  public void saveCategory(String categoryId, Map<String, CategoryText> textByLocale) {
+  public void saveCategory(String categoryId, CategoryText text) {
     entityManager.persist(new CategoryEntity(categoryId));
-    textByLocale.forEach((locale, text) ->
-        entityManager.persist(
-            new CategoryDetailsEntity(
-                new CategoryDetailsId(categoryId, locale),
-                text.name(),
-                text.image(),
-                text.description())));
+    entityManager.persist(
+        new CategoryDetailsEntity(
+            new CategoryDetailsId(categoryId, LOCALE),
+            text.name(),
+            text.image(),
+            text.description()));
   }
 
   @Override
   @Transactional
-  public void saveProduct(
-      String productId, String categoryId, Map<String, ProductText> textByLocale) {
+  public void saveProduct(String productId, String categoryId, ProductText text) {
     entityManager.persist(new ProductEntity(productId, categoryId));
-    textByLocale.forEach((locale, text) ->
-        entityManager.persist(
-            new ProductDetailsEntity(
-                new ProductDetailsId(productId, locale),
-                text.name(),
-                text.image(),
-                text.description())));
+    entityManager.persist(
+        new ProductDetailsEntity(
+            new ProductDetailsId(productId, LOCALE),
+            text.name(),
+            text.image(),
+            text.description()));
   }
 
   @Override
   @Transactional
-  public void saveItem(String itemId, String productId, Map<String, ItemDetails> detailsByLocale) {
+  public void saveItem(String itemId, String productId, ItemDetails details) {
     entityManager.persist(new ItemEntity(itemId, productId));
-    detailsByLocale.forEach((locale, details) ->
-        entityManager.persist(
-            new ItemDetailsEntity(
-                new ItemDetailsId(itemId, locale),
-                details.listPrice(),
-                details.unitCost(),
-                details.image(),
-                details.description(),
-                details.attributes())));
+    entityManager.persist(
+        new ItemDetailsEntity(
+            new ItemDetailsId(itemId, LOCALE),
+            details.listPrice(),
+            details.unitCost(),
+            details.image(),
+            details.description(),
+            details.attributes()));
   }
 }

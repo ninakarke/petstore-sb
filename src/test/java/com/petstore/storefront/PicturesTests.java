@@ -64,9 +64,6 @@ class PicturesTests {
     assertThat(mvc.get().uri("/images/cat3.gif")).bodyText().contains("Cat placeholder");
     assertThat(mvc.get().uri("/images/fish1.jpg")).bodyText().contains("Fish placeholder");
     assertThat(mvc.get().uri("/images/banner_logo.gif")).bodyText().contains("Pet Store");
-    assertThat(mvc.get().uri("/images/ja_flag.gif")).bodyText().contains("Language JA");
-    assertThat(mvc.get().uri("/images/zh_flag.gif")).bodyText().contains("Language ZH");
-    assertThat(mvc.get().uri("/images/us_flag.gif")).bodyText().contains("Language EN");
     assertThat(mvc.get().uri("/images/something_else.gif")).bodyText().contains("Pet placeholder");
   }
 

@@ -60,17 +60,6 @@ class CustomerSeederTests {
   }
 
   @Test
-  @DisplayName("legacy seed data: the Japanese and Chinese demo customers prefer their language")
-  void keepsThePreferredLanguages() {
-    seed(true);
-
-    assertThat(store.find("j2ee-ja").orElseThrow().profile().preferredLanguage())
-        .isEqualTo("ja_JP");
-    assertThat(store.find("j2ee-zh").orElseThrow().profile().preferredLanguage())
-        .isEqualTo("zh_CN");
-  }
-
-  @Test
   void doesNothingWhenCustomersAlreadyExist() {
     store.save(CustomerFixtures.customer("only"));
 

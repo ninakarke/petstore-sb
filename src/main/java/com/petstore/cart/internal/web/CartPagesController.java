@@ -3,7 +3,6 @@ package com.petstore.cart.internal.web;
 import com.petstore.cart.CartService;
 import com.petstore.cart.UnknownItemException;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -38,16 +37,16 @@ class CartPagesController {
 
   /** Legacy: {@code cart.screen}, and {@code cart.do} without an action. */
   @GetMapping("/cart")
-  String show(Locale locale, Model model) {
-    model.addAttribute("cart", cart.view(locale));
+  String show(Model model) {
+    model.addAttribute("cart", cart.view());
     return "cart/cart";
   }
 
   /** Legacy: {@code cart.do?action=purchase&itemId=...}. */
   @PostMapping("/cart/items")
-  String add(@RequestParam String itemId, Locale locale) {
+  String add(@RequestParam String itemId) {
     try {
-      cart.add(itemId, locale);
+      cart.add(itemId);
     } catch (UnknownItemException exception) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, exception.getMessage(), exception);
     }

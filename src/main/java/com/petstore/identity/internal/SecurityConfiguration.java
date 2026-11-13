@@ -1,6 +1,5 @@
 package com.petstore.identity.internal;
 
-import com.petstore.identity.internal.web.KeepLanguageOnSignOut;
 import com.petstore.identity.internal.web.RememberUsernameFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,7 +52,6 @@ class SecurityConfiguration {
   @Order(Ordered.LOWEST_PRECEDENCE)
   SecurityFilterChain webSecurity(HttpSecurity http, IdentityProperties properties)
       throws Exception {
-    KeepLanguageOnSignOut keepLanguage = new KeepLanguageOnSignOut(SIGNED_OUT_PATH);
     http.authorizeHttpRequests(requests ->
             requests
                 .requestMatchers(properties.protectedPaths().toArray(String[]::new))
@@ -68,11 +66,7 @@ class SecurityConfiguration {
                 .passwordParameter(PASSWORD_PARAMETER)
                 .failureUrl(SIGN_IN_PATH + "?error")
                 .defaultSuccessUrl("/"))
-        .logout(logout ->
-            logout
-                .logoutUrl(SIGN_OUT_PATH)
-                .addLogoutHandler(keepLanguage)
-                .logoutSuccessHandler(keepLanguage))
+        .logout(logout -> logout.logoutUrl(SIGN_OUT_PATH).logoutSuccessUrl(SIGNED_OUT_PATH))
         .addFilterBefore(
             new RememberUsernameFilter(SIGN_IN_PATH, USERNAME_PARAMETER),
             UsernamePasswordAuthenticationFilter.class);

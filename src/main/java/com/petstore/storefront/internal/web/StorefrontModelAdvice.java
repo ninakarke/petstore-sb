@@ -3,7 +3,6 @@ package com.petstore.storefront.internal.web;
 import com.petstore.catalog.CatalogService;
 import com.petstore.catalog.Category;
 import java.util.List;
-import java.util.Locale;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -25,7 +24,7 @@ class StorefrontModelAdvice {
 
   /** The category list of the sidebar. Legacy: {@code sidebar.jsp}. */
   @ModelAttribute("sidebarCategories")
-  List<Category> sidebarCategories(Locale locale) {
-    return catalog.categories(locale);
+  List<Category> sidebarCategories() {
+    return catalog.categories();
   }
 }

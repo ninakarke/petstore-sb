@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  * a line is the item's <em>list price</em>. Unlike there, money is {@link BigDecimal}, not {@code
  * double}.
  *
- * @param name the product name, in the visitor's language
+ * @param name the product name
  * @param attribute the item's first attribute, such as "Large"
  * @param unitPrice the list price of one item
  */

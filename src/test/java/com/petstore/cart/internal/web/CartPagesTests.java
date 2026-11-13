@@ -3,7 +3,6 @@ package com.petstore.cart.internal.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 /**
  * The cart page and its actions, against the running application and the legacy seed data.
@@ -144,21 +142,6 @@ class CartPagesTests {
     assertThat(add("EST-404")).hasStatus(HttpStatus.NOT_FOUND);
 
     assertThat(cartPage()).contains("Your Shopping Cart is Empty.");
-  }
-
-  @Test
-  @DisplayName("fixed: an item without Japanese details no longer breaks the cart in Japanese")
-  void cartSurvivesAnItemWithoutDetailsInTheVisitorsLanguage() {
-    // EST-15 is the one seed item that has no ja_JP details.
-    add("EST-15");
-    add("EST-1");
-    session.setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.JAPAN);
-
-    assertThat(mvc.get().uri("/cart").session(session))
-        .hasStatusOk()
-        .bodyText()
-        .contains("itemQuantity_EST-15")
-        .contains("itemQuantity_EST-1");
   }
 
   @Test

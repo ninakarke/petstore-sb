@@ -22,63 +22,61 @@ import java.util.stream.Stream;
  */
 public class InMemoryCatalogStore implements CatalogStore {
 
-  private record ProductRow(String categoryId, Map<String, ProductText> text) {}
+  private record ProductRow(String categoryId, ProductText text) {}
 
-  private record ItemRow(String productId, Map<String, ItemDetails> details) {}
+  private record ItemRow(String productId, ItemDetails details) {}
 
-  private final Map<String, Map<String, CategoryText>> categories = new TreeMap<>();
+  private final Map<String, CategoryText> categories = new TreeMap<>();
   private final Map<String, ProductRow> products = new TreeMap<>();
   private final Map<String, ItemRow> items = new TreeMap<>();
 
   @Override
-  public Optional<Category> findCategory(String categoryId, String locale) {
+  public Optional<Category> findCategory(String categoryId) {
     return Optional.ofNullable(categories.get(categoryId))
-        .map(text -> text.get(locale))
         .map(text -> new Category(categoryId, text.name(), text.description()));
   }
 
   @Override
-  public List<Category> findCategories(String locale) {
+  public List<Category> findCategories() {
     return categories.keySet().stream()
-        .flatMap(id -> findCategory(id, locale).stream())
+        .flatMap(id -> findCategory(id).stream())
         .sorted(Comparator.comparing(Category::name).thenComparing(Category::id))
         .toList();
   }
 
   @Override
-  public Optional<Product> findProduct(String productId, String locale) {
+  public Optional<Product> findProduct(String productId) {
     return Optional.ofNullable(products.get(productId))
-        .map(row -> row.text().get(locale))
-        .map(text -> new Product(productId, text.name(), text.description()));
+        .map(row -> new Product(productId, row.text().name(), row.text().description()));
   }
 
   @Override
-  public Page<Product> findProducts(String categoryId, String locale, int start, int count) {
+  public Page<Product> findProducts(String categoryId, int start, int count) {
     List<Product> all =
         products.entrySet().stream()
             .filter(entry -> entry.getValue().categoryId().equals(categoryId))
-            .flatMap(entry -> findProduct(entry.getKey(), locale).stream())
+            .flatMap(entry -> findProduct(entry.getKey()).stream())
             .sorted(Comparator.comparing(Product::name).thenComparing(Product::id))
             .toList();
     return page(all, start, count);
   }
 
   @Override
-  public Optional<Item> findItem(String itemId, String locale) {
+  public Optional<Item> findItem(String itemId) {
     ItemRow row = items.get(itemId);
     if (row == null) {
       return Optional.empty();
     }
-    ItemDetails details = row.details().get(locale);
     ProductRow product = products.get(row.productId());
-    if (details == null || product == null || !product.text().containsKey(locale)) {
+    if (product == null) {
       return Optional.empty();
     }
+    ItemDetails details = row.details();
     return Optional.of(
         new Item(
             product.categoryId(),
             row.productId(),
-            product.text().get(locale).name(),
+            product.text().name(),
             itemId,
             details.image(),
             details.description(),
@@ -88,17 +86,17 @@ public class InMemoryCatalogStore implements CatalogStore {
   }
 
   @Override
-  public Page<Item> findItems(String productId, String locale, int start, int count) {
-    List<Item> all = itemsIn(locale).filter(item -> item.productId().equals(productId)).toList();
+  public Page<Item> findItems(String productId, int start, int count) {
+    List<Item> all = allItems().filter(item -> item.productId().equals(productId)).toList();
     return page(all, start, count);
   }
 
   @Override
-  public Page<Item> searchItems(Set<String> keywords, String locale, int start, int count) {
+  public Page<Item> searchItems(Set<String> keywords, int start, int count) {
     List<String> needles =
         keywords.stream().map(keyword -> keyword.toLowerCase(Locale.ROOT)).toList();
     List<Item> all =
-        itemsIn(locale)
+        allItems()
             .filter(item ->
                 needles.stream()
                     .anyMatch(needle ->
@@ -109,9 +107,9 @@ public class InMemoryCatalogStore implements CatalogStore {
     return page(all, start, count);
   }
 
-  /** Every item that has details in the locale, ordered by item id. */
-  private Stream<Item> itemsIn(String locale) {
-    return items.keySet().stream().flatMap(id -> findItem(id, locale).stream());
+  /** Every item, ordered by item id. */
+  private Stream<Item> allItems() {
+    return items.keySet().stream().flatMap(id -> findItem(id).stream());
   }
 
   private static boolean contains(String text, String needle) {
@@ -132,19 +130,18 @@ public class InMemoryCatalogStore implements CatalogStore {
   }
 
   @Override
-  public void saveCategory(String categoryId, Map<String, CategoryText> textByLocale) {
-    categories.put(categoryId, Map.copyOf(textByLocale));
+  public void saveCategory(String categoryId, CategoryText text) {
+    categories.put(categoryId, text);
   }
 
   @Override
-  public void saveProduct(
-      String productId, String categoryId, Map<String, ProductText> textByLocale) {
-    products.put(productId, new ProductRow(categoryId, Map.copyOf(textByLocale)));
+  public void saveProduct(String productId, String categoryId, ProductText text) {
+    products.put(productId, new ProductRow(categoryId, text));
   }
 
   @Override
-  public void saveItem(String itemId, String productId, Map<String, ItemDetails> detailsByLocale) {
-    items.put(itemId, new ItemRow(productId, Map.copyOf(detailsByLocale)));
+  public void saveItem(String itemId, String productId, ItemDetails details) {
+    items.put(itemId, new ItemRow(productId, details));
   }
 
   /** Removes everything. */

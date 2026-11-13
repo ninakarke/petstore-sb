@@ -4,7 +4,6 @@ import com.petstore.catalog.CatalogService;
 import com.petstore.catalog.Category;
 import com.petstore.catalog.Item;
 import com.petstore.catalog.Product;
-import java.util.Locale;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,33 +35,27 @@ class CatalogPagesController {
   /** Legacy: {@code category.screen?category_id=...}. */
   @GetMapping("/categories/{categoryId}")
   String category(
-      @PathVariable String categoryId,
-      @RequestParam(defaultValue = "0") int start,
-      Locale locale,
-      Model model) {
-    Category category = catalog.category(categoryId, locale).orElseThrow(this::notFound);
+      @PathVariable String categoryId, @RequestParam(defaultValue = "0") int start, Model model) {
+    Category category = catalog.category(categoryId).orElseThrow(this::notFound);
     model.addAttribute("category", category);
-    model.addAttribute("products", catalog.products(categoryId, start, catalog.pageSize(), locale));
+    model.addAttribute("products", catalog.products(categoryId, start, catalog.pageSize()));
     return "catalog/category";
   }
 
   /** Legacy: {@code product.screen?product_id=...}. */
   @GetMapping("/products/{productId}")
   String product(
-      @PathVariable String productId,
-      @RequestParam(defaultValue = "0") int start,
-      Locale locale,
-      Model model) {
-    Product product = catalog.product(productId, locale).orElseThrow(this::notFound);
+      @PathVariable String productId, @RequestParam(defaultValue = "0") int start, Model model) {
+    Product product = catalog.product(productId).orElseThrow(this::notFound);
     model.addAttribute("product", product);
-    model.addAttribute("items", catalog.items(productId, start, catalog.pageSize(), locale));
+    model.addAttribute("items", catalog.items(productId, start, catalog.pageSize()));
     return "catalog/product";
   }
 
   /** Legacy: {@code item.screen?item_id=...}. */
   @GetMapping("/items/{itemId}")
-  String item(@PathVariable String itemId, Locale locale, Model model) {
-    Item item = catalog.item(itemId, locale).orElseThrow(this::notFound);
+  String item(@PathVariable String itemId, Model model) {
+    Item item = catalog.item(itemId).orElseThrow(this::notFound);
     model.addAttribute("item", item);
     return "catalog/item";
   }
@@ -72,10 +65,9 @@ class CatalogPagesController {
   String search(
       @RequestParam(defaultValue = "") String keywords,
       @RequestParam(defaultValue = "0") int start,
-      Locale locale,
       Model model) {
     model.addAttribute("keywords", keywords);
-    model.addAttribute("results", catalog.search(keywords, start, catalog.pageSize(), locale));
+    model.addAttribute("results", catalog.search(keywords, start, catalog.pageSize()));
     return "catalog/search";
   }
 

@@ -66,7 +66,7 @@ public abstract class CustomerStoreContract {
                     null,
                     "408-555-5555"),
                 new CreditCard("0100-001-0001", "Duke Express", "10/2031")),
-            new Profile("ja_JP", "DOGS", false, true));
+            new Profile("en_US", "DOGS", false, true));
 
     store().save(other);
 
@@ -89,7 +89,7 @@ public abstract class CustomerStoreContract {
                     "new@example.com",
                     "111-111-1111"),
                 new CreditCard("999", "Java(TM) Card", "01/2032")),
-            new Profile("zh_CN", "CATS", false, false));
+            new Profile("en_US", "CATS", false, false));
 
     store().save(changed);
 
@@ -115,7 +115,7 @@ public abstract class CustomerStoreContract {
   }
 
   @Test
-  void textInOtherScriptsIsKept() {
+  void namesAndAddressesInAnyScriptAreKept() {
     Customer customer =
         new Customer(
             "j2ee-zh",
@@ -128,7 +128,7 @@ public abstract class CustomerStoreContract {
                     "x@y.z",
                     "555"),
                 new CreditCard("1", "VISA", "01/2030")),
-            new Profile("zh_CN", "FISH", true, true));
+            new Profile("en_US", "FISH", true, true));
 
     store().save(customer);
 

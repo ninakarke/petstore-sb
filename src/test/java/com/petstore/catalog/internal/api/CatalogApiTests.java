@@ -37,25 +37,6 @@ class CatalogApiTests {
   }
 
   @Test
-  void localeParameterSelectsTheLanguage() {
-    assertThat(mvc.get().uri(API + "/categories/FISH?locale=zh_CN"))
-        .hasStatusOk()
-        .bodyJson()
-        .extractingPath("$.name")
-        .isEqualTo("鱼");
-  }
-
-  @Test
-  void unsupportedLocaleIsABadRequest() {
-    assertThat(mvc.get().uri(API + "/categories?locale=de_DE"))
-        .hasStatus(HttpStatus.BAD_REQUEST)
-        .hasContentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
-        .bodyJson()
-        .extractingPath("$.detail")
-        .isEqualTo("Unsupported locale 'de_DE'");
-  }
-
-  @Test
   @DisplayName("same rule as the pages: two products per page unless a count is given")
   void productsArePagedLikeThePages() {
     assertThat(mvc.get().uri(API + "/categories/FISH/products"))

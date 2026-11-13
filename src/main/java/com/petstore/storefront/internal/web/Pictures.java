@@ -54,13 +54,6 @@ class Pictures {
     if (lower.contains("logo")) {
       return "logo";
     }
-    if (lower.endsWith("_flag.gif")) {
-      return switch (lower.substring(0, 2)) {
-        case "ja" -> "language-ja";
-        case "zh" -> "language-zh";
-        default -> "language-en";
-      };
-    }
     if (lower.contains("fish")) {
       return "fish";
     }

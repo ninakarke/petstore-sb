@@ -5,7 +5,6 @@ import com.petstore.catalog.CatalogService;
 import com.petstore.catalog.Item;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 
@@ -36,8 +35,8 @@ public class CartService {
    *
    * @throws UnknownItemException if the catalog has no such item
    */
-  public void add(String itemId, Locale locale) {
-    catalog.item(itemId, locale).orElseThrow(() -> new UnknownItemException(itemId));
+  public void add(String itemId) {
+    catalog.item(itemId).orElseThrow(() -> new UnknownItemException(itemId));
     cart.put(itemId, 1);
   }
 
@@ -72,18 +71,15 @@ public class CartService {
   }
 
   /**
-   * The cart as it is shown: every line with the item's current name and list price in the
-   * visitor's language.
-   *
-   * <p>An item without details in that language is shown with the details of the default language;
-   * the legacy cart failed with a {@code NullPointerException} in that case. An item that has left
-   * the catalog altogether is left out.
+   * The cart as it is shown: every line with the item's current name and list price. An item that
+   * has left the catalog is left out; the legacy cart failed with a {@code NullPointerException}
+   * when an item could not be read.
    */
-  public CartView view(Locale locale) {
+  public CartView view() {
     List<CartLine> lines = new ArrayList<>();
     cart.quantities()
         .forEach((itemId, quantity) ->
-            catalog.item(itemId, locale).map(item -> line(item, quantity)).ifPresent(lines::add));
+            catalog.item(itemId).map(item -> line(item, quantity)).ifPresent(lines::add));
     return new CartView(lines);
   }
 

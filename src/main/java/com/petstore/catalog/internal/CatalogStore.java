@@ -6,7 +6,6 @@ import com.petstore.catalog.Page;
 import com.petstore.catalog.Product;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,28 +19,28 @@ import java.util.Set;
  * pass the same contract test suite, which is what allows the data store to be changed without
  * touching the catalog's logic.
  *
- * <p>Text and prices are stored once per locale, under codes such as {@code en_US}. A read for a
- * locale that has no data returns nothing; falling back to another locale is a decision for the
- * service, not the store.
+ * <p>The legacy statements also took a locale. This application is English only, so the port has no
+ * such parameter; an adapter for a store that keeps the legacy per-locale layout supplies the
+ * English code itself.
  */
 public interface CatalogStore {
 
   // ---- reads -------------------------------------------------------------------------------
 
-  Optional<Category> findCategory(String categoryId, String locale);
+  Optional<Category> findCategory(String categoryId);
 
-  /** All categories that have text in the locale, ordered by name. */
-  List<Category> findCategories(String locale);
+  /** All categories, ordered by name. */
+  List<Category> findCategories();
 
-  Optional<Product> findProduct(String productId, String locale);
+  Optional<Product> findProduct(String productId);
 
   /** Products of a category, ordered by name and then id. */
-  Page<Product> findProducts(String categoryId, String locale, int start, int count);
+  Page<Product> findProducts(String categoryId, int start, int count);
 
-  Optional<Item> findItem(String itemId, String locale);
+  Optional<Item> findItem(String itemId);
 
   /** Items of a product, ordered by item id. */
-  Page<Item> findItems(String productId, String locale, int start, int count);
+  Page<Item> findItems(String productId, int start, int count);
 
   /**
    * Items for which at least one keyword occurs, ignoring case, in the product name, the category
@@ -49,25 +48,25 @@ public interface CatalogStore {
    *
    * @param keywords the keywords, taken literally; never empty
    */
-  Page<Item> searchItems(Set<String> keywords, String locale, int start, int count);
+  Page<Item> searchItems(Set<String> keywords, int start, int count);
 
   // ---- writes, used to load reference data ----------------------------------------------------
 
   boolean isEmpty();
 
-  void saveCategory(String categoryId, Map<String, CategoryText> textByLocale);
+  void saveCategory(String categoryId, CategoryText text);
 
-  void saveProduct(String productId, String categoryId, Map<String, ProductText> textByLocale);
+  void saveProduct(String productId, String categoryId, ProductText text);
 
-  void saveItem(String itemId, String productId, Map<String, ItemDetails> detailsByLocale);
+  void saveItem(String itemId, String productId, ItemDetails details);
 
-  /** Text of a category in one locale. */
+  /** Text of a category. */
   record CategoryText(String name, String image, String description) {}
 
-  /** Text of a product in one locale. */
+  /** Text of a product. */
   record ProductText(String name, String image, String description) {}
 
-  /** Text and prices of an item in one locale. */
+  /** Text and prices of an item. */
   record ItemDetails(
       BigDecimal listPrice,
       BigDecimal unitCost,

@@ -5,10 +5,10 @@ import com.petstore.catalog.internal.CatalogStore.ItemDetails;
 import com.petstore.catalog.internal.CatalogStore.ProductText;
 import com.petstore.shared.SeedDocument;
 import com.petstore.shared.SeedProperties;
+import com.petstore.shared.StoreLocale;
 import java.math.BigDecimal;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -28,11 +28,12 @@ import org.w3c.dom.Element;
  *   <li>it is not reachable over HTTP; the legacy servlet let any visitor drop and reload the
  *       database;
  *   <li>it never drops anything, and does nothing if the store already holds data;
- *   <li>it writes through the persistence port, so the same loader fills any data store.
+ *   <li>it writes through the persistence port, so the same loader fills any data store;
+ *   <li>the seed file carries every text in three languages; only the English text is loaded.
  * </ul>
  *
  * <p>Element-to-field mapping is the legacy one: {@code Attribute[0..4]} become the item's
- * attributes, and {@code xml:lang="en-US"} is stored as {@code en_US}.
+ * attributes.
  */
 @Component
 @Order(10)
@@ -62,46 +63,39 @@ class CatalogSeeder implements ApplicationRunner {
 
     List<Element> categories = seed.elements("Catalog", "Categories", "Category");
     for (Element category : categories) {
-      Map<String, CategoryText> text = new LinkedHashMap<>();
-      for (Element details : SeedDocument.children(category, "CategoryDetails")) {
-        text.put(
-            SeedDocument.localeCode(details),
-            new CategoryText(
-                SeedDocument.text(details, "Name").orElseThrow(),
-                SeedDocument.text(details, "Image").orElse(null),
-                SeedDocument.text(details, "Description").orElse(null)));
-      }
-      store.saveCategory(category.getAttribute("id"), text);
+      Element details = english(category, "CategoryDetails").orElseThrow();
+      store.saveCategory(
+          category.getAttribute("id"),
+          new CategoryText(
+              SeedDocument.text(details, "Name").orElseThrow(),
+              SeedDocument.text(details, "Image").orElse(null),
+              SeedDocument.text(details, "Description").orElse(null)));
     }
 
     List<Element> products = seed.elements("Catalog", "Products", "Product");
     for (Element product : products) {
-      Map<String, ProductText> text = new LinkedHashMap<>();
-      for (Element details : SeedDocument.children(product, "ProductDetails")) {
-        text.put(
-            SeedDocument.localeCode(details),
-            new ProductText(
-                SeedDocument.text(details, "Name").orElseThrow(),
-                SeedDocument.text(details, "Image").orElse(null),
-                SeedDocument.text(details, "Description").orElse(null)));
-      }
-      store.saveProduct(product.getAttribute("id"), product.getAttribute("category"), text);
+      Element details = english(product, "ProductDetails").orElseThrow();
+      store.saveProduct(
+          product.getAttribute("id"),
+          product.getAttribute("category"),
+          new ProductText(
+              SeedDocument.text(details, "Name").orElseThrow(),
+              SeedDocument.text(details, "Image").orElse(null),
+              SeedDocument.text(details, "Description").orElse(null)));
     }
 
     List<Element> items = seed.elements("Catalog", "Items", "Item");
     for (Element item : items) {
-      Map<String, ItemDetails> detailsByLocale = new LinkedHashMap<>();
-      for (Element details : SeedDocument.children(item, "ItemDetails")) {
-        detailsByLocale.put(
-            SeedDocument.localeCode(details),
-            new ItemDetails(
-                new BigDecimal(SeedDocument.text(details, "ListPrice").orElseThrow()),
-                new BigDecimal(SeedDocument.text(details, "UnitCost").orElseThrow()),
-                SeedDocument.text(details, "Image").orElseThrow(),
-                SeedDocument.text(details, "Description").orElseThrow(),
-                SeedDocument.texts(details, "Attribute")));
-      }
-      store.saveItem(item.getAttribute("id"), item.getAttribute("product"), detailsByLocale);
+      Element details = english(item, "ItemDetails").orElseThrow();
+      store.saveItem(
+          item.getAttribute("id"),
+          item.getAttribute("product"),
+          new ItemDetails(
+              new BigDecimal(SeedDocument.text(details, "ListPrice").orElseThrow()),
+              new BigDecimal(SeedDocument.text(details, "UnitCost").orElseThrow()),
+              SeedDocument.text(details, "Image").orElseThrow(),
+              SeedDocument.text(details, "Description").orElseThrow(),
+              SeedDocument.texts(details, "Attribute")));
     }
 
     log.info(
@@ -109,5 +103,12 @@ class CatalogSeeder implements ApplicationRunner {
         categories.size(),
         products.size(),
         items.size());
+  }
+
+  /** The English one of the per-language detail elements of a category, product or item. */
+  private static Optional<Element> english(Element parent, String detailsName) {
+    return SeedDocument.children(parent, detailsName).stream()
+        .filter(details -> StoreLocale.CODE.equals(SeedDocument.localeCode(details)))
+        .findFirst();
   }
 }

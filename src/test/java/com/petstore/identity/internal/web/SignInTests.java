@@ -8,7 +8,6 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 
 import com.petstore.identity.IdentityService;
 import jakarta.servlet.http.Cookie;
-import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 /**
  * Signing in, signing out, protected pages and creating a user, against the running application
@@ -251,23 +249,6 @@ class SignInTests {
         .contains("You are signed out.")
         .contains("Thank you for shopping.")
         .contains("href=\"/signin\"");
-  }
-
-  @Test
-  @DisplayName("legacy SignOffHTMLAction: the visitor's language survives signing out")
-  void languageIsKeptWhenSigningOut() {
-    signIn("j2ee", "j2ee");
-    session.setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.JAPAN);
-
-    MvcTestResult result = mvc.post().uri("/signout").session(session).with(csrf()).exchange();
-
-    assertThat(result.getRequest().getSession(false)).isNotNull().isNotSameAs(session);
-    assertThat(
-            result
-                .getRequest()
-                .getSession(false)
-                .getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME))
-        .isEqualTo(Locale.JAPAN);
   }
 
   @Test

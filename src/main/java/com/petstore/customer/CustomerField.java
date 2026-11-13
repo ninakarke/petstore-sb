@@ -13,6 +13,5 @@ public enum CustomerField {
   CARD_NUMBER,
   CARD_TYPE,
   CARD_EXPIRY,
-  LANGUAGE,
   FAVORITE_CATEGORY
 }
