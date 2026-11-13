@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<!--/* Legacy equivalent: sidebar.jsp, the "Pets" box listing the categories. */-->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <body>
+    <nav class="sidebar" th:fragment="sidebar">
+      <section class="panel">
+        <h2 class="panel-title" th:text="#{sidebar.title}">Pets</h2>
+        <ul class="panel-body">
+          <li th:each="category : ${sidebarCategories}">
+            <a th:href="@{/categories/{id}(id=${category.id})}" href="#" th:text="${category.name}">Fish</a>
+          </li>
+        </ul>
+      </section>
+    </nav>
+  </body>
+</html>

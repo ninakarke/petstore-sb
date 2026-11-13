@@ -19,6 +19,7 @@
   <body>
     <header th:replace="~{fragments/banner :: banner}"></header>
     <div class="page">
+      <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
       <div class="content" th:insert="${content}"></div>
     </div>
     <footer th:replace="~{fragments/footer :: footer}"></footer>

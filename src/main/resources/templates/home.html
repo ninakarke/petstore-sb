@@ -7,6 +7,11 @@
   <body>
     <main>
       <h1 th:text="#{home.title}">Welcome to the BluePrints Petstore</h1>
+      <ul class="category-tiles">
+        <li th:each="category : ${sidebarCategories}">
+          <a th:href="@{/categories/{id}(id=${category.id})}" href="#" th:text="${category.name}">Fish</a>
+        </li>
+      </ul>
     </main>
   </body>
 </html>

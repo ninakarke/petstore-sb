@@ -4,6 +4,12 @@
   <body>
     <header class="banner" th:fragment="banner">
       <a class="banner-logo" th:href="@{/}" href="/" th:text="#{site.name}">Pet Store</a>
+      <div class="banner-tools">
+        <form class="banner-search" th:action="@{/search}" action="/search" method="get" role="search">
+          <input type="search" name="keywords" size="8" th:attr="aria-label=#{banner.search}" />
+          <button type="submit" th:text="#{banner.search}">Search</button>
+        </form>
+      </div>
     </header>
   </body>
 </html>

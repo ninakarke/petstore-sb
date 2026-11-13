@@ -64,3 +64,104 @@ a {
   font-size: 0.75rem;
   text-align: center;
 }
+
+.banner-tools {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.8rem;
+}
+
+.banner-search {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.sidebar {
+  flex: 0 0 20%;
+  min-width: 9rem;
+}
+
+.panel {
+  border: 1px solid var(--petstore-teal);
+}
+
+.panel-title {
+  margin: 0;
+  padding: 0.25rem;
+  color: #ffffff;
+  background: var(--petstore-teal);
+  font-size: 1rem;
+  text-align: center;
+}
+
+.panel-body {
+  margin: 0;
+  padding: 0.5rem;
+  list-style: none;
+}
+
+.listing {
+  margin: 0;
+  padding: 0;
+  border: 1px solid #808080;
+  list-style: none;
+  font-size: 0.8rem;
+}
+
+.listing li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0.5rem;
+}
+
+.listing p {
+  margin: 0.1rem 0 0;
+}
+
+.listing-side {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pager {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  font-size: 0.8rem;
+}
+
+.category-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.category-tiles a {
+  display: block;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--petstore-teal);
+  color: var(--petstore-teal);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.item-prices {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  gap: 0.5rem 1rem;
+  margin: 0;
+}
+
+.item-prices dt {
+  font-weight: bold;
+}
+
+.item-prices dd {
+  margin: 0;
+}

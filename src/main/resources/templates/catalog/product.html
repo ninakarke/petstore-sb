@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<!--/* Legacy equivalent: the "product" screen (product.jsp). */-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{product.title}">Product</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:text="#{product.heading}">Items for this Product</h1>
+      <ul class="listing">
+        <li th:each="item : ${items.items}">
+          <div class="listing-main">
+            <a th:href="@{/items/{id}(id=${item.itemId})}" href="#" th:text="${item.displayName()}">Large Angelfish</a>
+            <p th:text="${item.description}">Fresh Water fish from Japan</p>
+          </div>
+          <div class="listing-side">
+            <span class="price" th:text="${#numbers.formatCurrency(item.listPrice)}">$16.50</span>
+          </div>
+        </li>
+      </ul>
+      <nav
+        th:replace="~{fragments/pager :: pager(${items},
+          @{/products/{id}(id=${product.id},start=${items.previousStart()})},
+          @{/products/{id}(id=${product.id},start=${items.nextStart()})})}"
+      ></nav>
+    </main>
+  </body>
+</html>

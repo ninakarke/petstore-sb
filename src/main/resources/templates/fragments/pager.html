@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<!--/*
+  "Previous" and "Next" links under a list.
+  Legacy equivalent: the paging block repeated at the end of category.jsp,
+  product.jsp and search.jsp. As there, only the neighbours are known, not the
+  total number of results.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <body>
+    <nav class="pager" th:fragment="pager(page, previousUrl, nextUrl)">
+      <a th:if="${page.hasPrevious()}" th:href="${previousUrl}" href="#" rel="prev" th:text="#{pager.previous}">Previous</a>
+      <a th:if="${page.hasNext()}" th:href="${nextUrl}" href="#" rel="next" th:text="#{pager.next}">Next</a>
+    </nav>
+  </body>
+</html>

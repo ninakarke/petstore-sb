@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!--/*
+  Legacy equivalent: the "search" screen (search.jsp). As there, the price
+  shown in the results is the customer's price (unit cost), not the list price.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{search.title}">Search</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:if="${results.isEmpty()}" th:text="#{search.noResults}">No results were found for your search.</h1>
+      <th:block th:unless="${results.isEmpty()}">
+        <h1 th:text="#{search.heading}">Search Results:</h1>
+        <p>
+          <span th:text="#{search.matchingAny}">Items matching any of:</span>
+          <b th:text="${keywords}">angel</b>
+        </p>
+        <ul class="listing">
+          <li th:each="item : ${results.items}">
+            <div class="listing-main">
+              <a th:href="@{/items/{id}(id=${item.itemId})}" href="#" th:text="${item.displayName()}">Large Angelfish</a>
+              <p th:text="${item.description}">Fresh Water fish from Japan</p>
+            </div>
+            <div class="listing-side">
+              <span class="price" th:text="${#numbers.formatCurrency(item.unitCost)}">$10.00</span>
+            </div>
+          </li>
+        </ul>
+        <nav
+          th:replace="~{fragments/pager :: pager(${results},
+            @{/search(keywords=${keywords},start=${results.previousStart()})},
+            @{/search(keywords=${keywords},start=${results.nextStart()})})}"
+        ></nav>
+      </th:block>
+    </main>
+  </body>
+</html>

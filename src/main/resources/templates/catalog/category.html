@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--/* Legacy equivalent: the "category" screen (category.jsp). */-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{category.title}">Items</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:text="#{category.heading}">Products for this Category</h1>
+      <ul class="listing">
+        <li th:each="product : ${products.items}">
+          <div class="listing-main">
+            <a th:href="@{/products/{id}(id=${product.id})}" href="#" th:text="${product.name}">Angelfish</a>
+            <p th:text="${product.description}">Salt Water fish from Australia</p>
+          </div>
+        </li>
+      </ul>
+      <nav
+        th:replace="~{fragments/pager :: pager(${products},
+          @{/categories/{id}(id=${category.id},start=${products.previousStart()})},
+          @{/categories/{id}(id=${category.id},start=${products.nextStart()})})}"
+      ></nav>
+    </main>
+  </body>
+</html>

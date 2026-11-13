@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<!--/* Legacy equivalent: the "item" screen (item.jsp). */-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{item.title}">Item</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:text="${item.displayName()}">Large Angelfish</h1>
+      <div class="item">
+        <dl class="item-prices">
+          <dt th:text="#{item.listPrice}">List Price:</dt>
+          <dd th:text="${#numbers.formatCurrency(item.listPrice)}">$16.50</dd>
+          <dt th:text="#{item.yourPrice}">Your Price:</dt>
+          <dd th:text="${#numbers.formatCurrency(item.unitCost)}">$10.00</dd>
+        </dl>
+      </div>
+    </main>
+  </body>
+</html>
