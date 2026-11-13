@@ -1,0 +1,29 @@
+# Profile "mongo": run on MongoDB instead of a relational database.
+#
+#   docker compose up -d mongo
+#   ./mvnw spring-boot:run -Dspring-boot.run.profiles=mongo
+#
+# The default matches compose.yaml. Set PETSTORE_MONGODB_URI to point at
+# another server, for example a MongoDB Atlas connection string
+# (mongodb+srv://user:password@cluster.example.mongodb.net/petstore).
+#
+# Do not combine this profile with "postgres": each port has one adapter per
+# run mode.
+
+spring:
+  # Switches the relational stack off. This list replaces the one in
+  # application.yml, which is what switches MongoDB on.
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+      - org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
+      - org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration
+      - org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration
+  mongodb:
+    uri: ${PETSTORE_MONGODB_URI:mongodb://localhost:27017/petstore}
+  data:
+    mongodb:
+      representation:
+        # Money is stored as MongoDB's decimal type. The document classes say
+        # so field by field; this makes it the rule for any field that does not.
+        big-decimal: decimal128

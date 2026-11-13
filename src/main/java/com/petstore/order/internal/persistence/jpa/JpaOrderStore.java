@@ -4,6 +4,7 @@ import com.petstore.order.Handoff;
 import com.petstore.order.HandoffStatus;
 import com.petstore.order.Order;
 import com.petstore.order.internal.OrderStore;
+import com.petstore.shared.RelationalStore;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
  * never disagree.
  */
 @Repository
+@RelationalStore
 @Transactional(readOnly = true)
 class JpaOrderStore implements OrderStore {
 

@@ -7,6 +7,7 @@ import com.petstore.customer.CreditCard;
 import com.petstore.customer.Customer;
 import com.petstore.customer.Profile;
 import com.petstore.customer.internal.CustomerStore;
+import com.petstore.shared.RelationalStore;
 import jakarta.persistence.EntityManager;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
  * one transaction. The rest of the application never sees the tables.
  */
 @Repository
+@RelationalStore
 @Transactional(readOnly = true)
 class JpaCustomerStore implements CustomerStore {
 

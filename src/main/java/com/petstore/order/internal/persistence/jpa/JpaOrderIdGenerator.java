@@ -1,6 +1,7 @@
 package com.petstore.order.internal.persistence.jpa;
 
 import com.petstore.order.internal.OrderIdGenerator;
+import com.petstore.shared.RelationalStore;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
  * is locked while it is incremented, so two requests can never be given the same number.
  */
 @Repository
+@RelationalStore
 class JpaOrderIdGenerator implements OrderIdGenerator {
 
   private final EntityManager entityManager;

@@ -5,6 +5,7 @@ import com.petstore.catalog.Item;
 import com.petstore.catalog.Page;
 import com.petstore.catalog.Product;
 import com.petstore.catalog.internal.CatalogStore;
+import com.petstore.shared.RelationalStore;
 import com.petstore.shared.StoreLocale;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -35,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
  * </ul>
  */
 @Repository
+@RelationalStore
 @Transactional(readOnly = true)
 class JpaCatalogStore implements CatalogStore {
 

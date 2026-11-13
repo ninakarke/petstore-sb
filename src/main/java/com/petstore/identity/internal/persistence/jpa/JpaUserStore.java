@@ -1,6 +1,7 @@
 package com.petstore.identity.internal.persistence.jpa;
 
 import com.petstore.identity.internal.UserStore;
+import com.petstore.shared.RelationalStore;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** Relational adapter of the identity port. Replaces the container-managed {@code UserEJB}. */
 @Repository
+@RelationalStore
 @Transactional(readOnly = true)
 class JpaUserStore implements UserStore {
 
