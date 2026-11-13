@@ -1,0 +1,26 @@
+version: 2
+
+# Keep the framework, libraries, build plugins and CI actions current.
+# Each proposed update runs the full CI workflow, so an upgrade is accepted
+# on evidence, not on trust.
+
+updates:
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      spring:
+        patterns:
+          - "org.springframework*"
+      build-plugins:
+        patterns:
+          - "org.apache.maven.plugins:*"
+          - "com.diffplug.spotless:*"
+          - "org.jacoco:*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
