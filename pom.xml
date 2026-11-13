@@ -12,7 +12,7 @@
 
   <groupId>com.petstore</groupId>
   <artifactId>petstore</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>petstore</name>
   <description>Pet Store storefront, migrated from J2EE 1.3 to Spring Boot</description>
 
