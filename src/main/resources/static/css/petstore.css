@@ -165,3 +165,25 @@ a {
 .item-prices dd {
   margin: 0;
 }
+
+.banner-logo img {
+  display: block;
+}
+
+.category-tiles a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.item {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.item-picture {
+  max-width: 12rem;
+  height: auto;
+}

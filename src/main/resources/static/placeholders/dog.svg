@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Dog placeholder">
+  <title>Dog placeholder</title>
+  <rect width="120" height="120" rx="10" fill="#e6eedb"/>
+  <ellipse cx="30" cy="56" rx="11" ry="24" fill="#244848"/>
+  <ellipse cx="90" cy="56" rx="11" ry="24" fill="#244848"/>
+  <circle cx="60" cy="60" r="29" fill="#336666"/>
+  <circle cx="50" cy="54" r="4" fill="#ffffff"/>
+  <circle cx="70" cy="54" r="4" fill="#ffffff"/>
+  <ellipse cx="60" cy="70" rx="7" ry="5" fill="#ffffff"/>
+</svg>

@@ -8,6 +8,7 @@
     <main>
       <h1 th:text="${item.displayName()}">Large Angelfish</h1>
       <div class="item">
+        <img class="item-picture" th:src="@{/images/{name}(name=${item.imageLocation})}" th:alt="${item.displayName()}" />
         <dl class="item-prices">
           <dt th:text="#{item.listPrice}">List Price:</dt>
           <dd th:text="${#numbers.formatCurrency(item.listPrice)}">$16.50</dd>

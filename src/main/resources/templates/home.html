@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<!--/* Legacy equivalent: the "main" screen (main.jsp). */-->
+<!--/*
+  Legacy equivalent: the "main" screen (main.jsp), an image map over one
+  picture. The clickable areas keep the legacy coordinates and link to the new
+  category pages. Without the picture, one tile per category is shown.
+*/-->
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
   <head>
     <title th:text="#{home.title}">Welcome to the BluePrints Petstore</title>
@@ -7,9 +11,23 @@
   <body>
     <main>
       <h1 th:text="#{home.title}">Welcome to the BluePrints Petstore</h1>
-      <ul class="category-tiles">
+      <th:block th:if="${splashAvailable}">
+        <map name="petmap">
+          <area th:href="@{/categories/BIRDS}" alt="Birds" shape="rect" coords="72,2,280,250" />
+          <area th:href="@{/categories/FISH}" alt="Fish" shape="rect" coords="2,180,72,250" />
+          <area th:href="@{/categories/DOGS}" alt="Dogs" shape="rect" coords="60,250,130,320" />
+          <area th:href="@{/categories/REPTILES}" alt="Reptiles" shape="rect" coords="140,270,210,340" />
+          <area th:href="@{/categories/CATS}" alt="Cats" shape="rect" coords="225,240,295,310" />
+          <area th:href="@{/categories/BIRDS}" alt="Birds" shape="rect" coords="280,180,350,250" />
+        </map>
+        <img th:src="@{/images/splash.gif}" th:alt="#{home.splash}" usemap="#petmap" width="350" height="355" />
+      </th:block>
+      <ul class="category-tiles" th:unless="${splashAvailable}">
         <li th:each="category : ${sidebarCategories}">
-          <a th:href="@{/categories/{id}(id=${category.id})}" href="#" th:text="${category.name}">Fish</a>
+          <a th:href="@{/categories/{id}(id=${category.id})}" href="#">
+            <img th:src="@{/images/{name}(name=${#strings.toLowerCase(category.id)} + '_icon.gif')}" alt="" width="60" height="60" />
+            <span th:text="${category.name}">Fish</span>
+          </a>
         </li>
       </ul>
     </main>

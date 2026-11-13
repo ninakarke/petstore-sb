@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Fish placeholder">
+  <title>Fish placeholder</title>
+  <rect width="120" height="120" rx="10" fill="#dbeef0"/>
+  <ellipse cx="54" cy="60" rx="30" ry="18" fill="#336666"/>
+  <path d="M82 60 L104 44 L104 76 Z" fill="#336666"/>
+  <circle cx="38" cy="55" r="3.5" fill="#ffffff"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Reptile placeholder">
+  <title>Reptile placeholder</title>
+  <rect width="120" height="120" rx="10" fill="#e3eede"/>
+  <ellipse cx="52" cy="58" rx="28" ry="11" fill="#336666"/>
+  <circle cx="24" cy="54" r="10" fill="#336666"/>
+  <path d="M78 58 Q104 60 100 86" fill="none" stroke="#336666" stroke-width="7" stroke-linecap="round"/>
+  <path d="M40 66 L32 84 M62 66 L70 84 M40 50 L32 34 M62 50 L70 34" stroke="#336666" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="20" cy="51" r="2.5" fill="#ffffff"/>
+</svg>
