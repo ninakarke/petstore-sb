@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
+import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * A catalog store that keeps everything in memory, for fast tests of the logic above the port.
@@ -131,17 +132,29 @@ public class InMemoryCatalogStore implements CatalogStore {
 
   @Override
   public void saveCategory(String categoryId, CategoryText text) {
+    refuseIf(categories.containsKey(categoryId), "Category " + categoryId + " exists");
     categories.put(categoryId, text);
   }
 
   @Override
   public void saveProduct(String productId, String categoryId, ProductText text) {
+    refuseIf(products.containsKey(productId), "Product " + productId + " exists");
+    refuseIf(!categories.containsKey(categoryId), "No category " + categoryId);
     products.put(productId, new ProductRow(categoryId, text));
   }
 
   @Override
   public void saveItem(String itemId, String productId, ItemDetails details) {
+    refuseIf(items.containsKey(itemId), "Item " + itemId + " exists");
+    refuseIf(!products.containsKey(productId), "No product " + productId);
     items.put(itemId, new ItemRow(productId, details));
+  }
+
+  /** What primary and foreign keys do in a database. */
+  private static void refuseIf(boolean broken, String message) {
+    if (broken) {
+      throw new DataIntegrityViolationException(message);
+    }
   }
 
   /** Removes everything. */

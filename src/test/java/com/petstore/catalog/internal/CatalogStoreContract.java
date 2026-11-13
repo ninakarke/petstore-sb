@@ -1,6 +1,7 @@
 package com.petstore.catalog.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.petstore.catalog.Category;
 import com.petstore.catalog.Item;
@@ -15,6 +16,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * The contract every {@link CatalogStore} adapter must fulfil.
@@ -266,6 +268,41 @@ public abstract class CatalogStoreContract {
   @Test
   void storeWithDataIsNotEmpty() {
     assertThat(store().isEmpty()).isFalse();
+  }
+
+  @Test
+  @DisplayName("an id can be used only once")
+  void idCanBeUsedOnlyOnce() {
+    assertThatThrownBy(() -> store().saveCategory("FISH", category("Fish again")))
+        .isInstanceOf(DataIntegrityViolationException.class);
+    assertThatThrownBy(() -> store().saveProduct("FI-SW-01", "FISH", product("Other", "Other")))
+        .isInstanceOf(DataIntegrityViolationException.class);
+    assertThatThrownBy(() -> store().saveItem("EST-1", "FI-SW-01", item("1.00", "1.00", "Other")))
+        .isInstanceOf(DataIntegrityViolationException.class);
+
+    assertThat(store().findCategory("FISH")).map(Category::name).contains("Fish");
+    assertThat(store().findProduct("FI-SW-01")).map(Product::name).contains("Angelfish");
+    assertThat(store().findItem("EST-1"))
+        .map(Item::description)
+        .contains("Fresh Water fish from Japan");
+  }
+
+  @Test
+  @DisplayName("a product must belong to an existing category, on every store")
+  void productOfAnUnknownCategoryIsRefused() {
+    assertThatThrownBy(() -> store().saveProduct("XX-01", "NOPE", product("Orphan", "Orphan")))
+        .isInstanceOf(DataIntegrityViolationException.class);
+
+    assertThat(store().findProduct("XX-01")).isEmpty();
+  }
+
+  @Test
+  @DisplayName("an item must belong to an existing product, on every store")
+  void itemOfAnUnknownProductIsRefused() {
+    assertThatThrownBy(() -> store().saveItem("EST-99", "XX-01", item("1.00", "1.00", "Orphan")))
+        .isInstanceOf(DataIntegrityViolationException.class);
+
+    assertThat(store().findItem("EST-99")).isEmpty();
   }
 
   private static CategoryText category(String name) {
