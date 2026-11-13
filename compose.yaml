@@ -11,11 +11,20 @@
 #   docker compose --profile app up --build          with PostgreSQL
 #   docker compose --profile app-mongo up --build    with MongoDB
 #
+# Stop with the same options and `down` (data is kept), or `down -v` (data is
+# deleted). This stops whatever is running, whichever way it was started:
+#
+#   docker compose --profile app --profile app-mongo down -v
+#
 # The default run mode needs none of this: it uses an embedded database.
 # Credentials here are for local development only.
 
 services:
+  # Each database belongs to the profile of the application variant that uses
+  # it, so a variant starts its own database and not the other one. Naming a
+  # database on the command line (`up -d postgres`) starts it without a profile.
   postgres:
+    profiles: ["app"]
     image: postgres:18
     environment:
       POSTGRES_DB: petstore
@@ -34,6 +43,7 @@ services:
   # A single MongoDB server, no replica set: the application needs no
   # multi-document transactions.
   mongo:
+    profiles: ["app-mongo"]
     image: mongo:8
     ports:
       - "27017:27017"
@@ -46,9 +56,6 @@ services:
       retries: 10
 
   # The application itself, built from the Dockerfile, once per data store.
-  # Each is only started when its profile is asked for, so
-  # `docker compose up -d postgres` and `docker compose up -d mongo` stay as
-  # they are.
   app:
     profiles: ["app"]
     build: .
