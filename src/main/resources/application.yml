@@ -73,6 +73,14 @@ springdoc:
 
 server:
   port: 8080
+  servlet:
+    session:
+      # Legacy: <session-timeout>15</session-timeout> in web.xml. The cart
+      # lives in the session, so this is also how long an idle cart is kept.
+      timeout: 15m
+      cookie:
+        http-only: true
+        same-site: lax
 
 management:
   endpoints:
