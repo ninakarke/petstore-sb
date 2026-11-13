@@ -14,6 +14,8 @@
           <dd th:text="${#numbers.formatCurrency(item.listPrice)}">$16.50</dd>
           <dt th:text="#{item.yourPrice}">Your Price:</dt>
           <dd th:text="${#numbers.formatCurrency(item.unitCost)}">$10.00</dd>
+          <dt></dt>
+          <dd><form th:replace="~{cart/add-to-cart :: button(${item.itemId})}"></form></dd>
         </dl>
       </div>
     </main>

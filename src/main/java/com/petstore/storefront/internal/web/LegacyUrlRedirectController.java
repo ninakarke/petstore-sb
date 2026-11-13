@@ -31,6 +31,7 @@ class LegacyUrlRedirectController {
   private static final Map<String, Function<Map<String, String>, Optional<URI>>> SCREENS =
       Map.of(
           "main", parameters -> Optional.of(URI.create("/")),
+          "cart", parameters -> Optional.of(URI.create("/cart")),
           "category",
               parameters ->
                   subject(parameters, "category_id")
@@ -59,6 +60,23 @@ class LegacyUrlRedirectController {
             .flatMap(route -> route.apply(parameters))
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     return movedPermanently(target);
+  }
+
+  /**
+   * Legacy cart addresses. {@code cart.do} changed the cart when it was fetched: {@code
+   * action=purchase} added an item, {@code action=remove} removed one. A fetched address must not
+   * change anything, so an "add" link leads to the item's page, where the visitor can add it, and
+   * everything else leads to the cart.
+   */
+  @GetMapping({"/cart.do", "/petstore/cart.do"})
+  ResponseEntity<Void> cart(@RequestParam Map<String, String> parameters) {
+    if ("purchase".equals(parameters.get("action"))) {
+      Optional<String> itemId = subject(parameters, "itemId");
+      if (itemId.isPresent()) {
+        return movedPermanently(UriComponentsBuilder.fromPath("/items/{id}").build(itemId.get()));
+      }
+    }
+    return movedPermanently(URI.create("/cart"));
   }
 
   /** The legacy welcome file and the bare legacy context path. */

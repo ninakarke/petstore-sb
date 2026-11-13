@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<!--/*
+  The "Add to Cart" button shown next to an item on the product, item and
+  search pages. Legacy equivalent: the link cart.do?action=purchase&itemId=...
+  written by product.jsp, item.jsp and search.jsp. A form, not a link, because
+  it changes the cart.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <body>
+    <form th:fragment="button(itemId)" class="add-to-cart" th:action="@{/cart/items}" action="/cart/items" method="post">
+      <input type="hidden" name="itemId" th:value="${itemId}" />
+      <button type="submit" class="link-button" th:text="#{cart.add}">Add to Cart</button>
+    </form>
+  </body>
+</html>

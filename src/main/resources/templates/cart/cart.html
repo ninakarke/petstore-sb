@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<!--/*
+  Legacy equivalent: the "cart" screen (cart.jsp). Same content: one row per
+  item with a remove action, a quantity field named itemQuantity_<id> and the
+  price of one item, then "Update Cart" and the total.
+  The legacy page changed the cart through GET links; these are POST forms.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{cart.title}">Cart</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:if="${cart.isEmpty()}" th:text="#{cart.empty}">Your Shopping Cart is Empty.</h1>
+      <th:block th:unless="${cart.isEmpty()}">
+        <h1 th:text="#{cart.heading}">Shopping Cart</h1>
+        <form id="cart-update" th:action="@{/cart}" action="/cart" method="post"></form>
+        <table class="cart">
+          <tr th:each="line : ${cart.lines}">
+            <td class="cart-name">
+              <a th:href="@{/items/{id}(id=${line.itemId})}" href="#" th:text="${line.displayName()}">Large Angelfish</a>
+            </td>
+            <td>
+              <form th:action="@{/cart/items/{id}/remove(id=${line.itemId})}" action="#" method="post">
+                <button type="submit" class="link-button" th:text="#{cart.remove}">Remove</button>
+              </form>
+            </td>
+            <td class="cart-number">
+              <input
+                type="text"
+                form="cart-update"
+                size="3"
+                maxlength="10"
+                th:name="|itemQuantity_${line.itemId}|"
+                th:value="${line.quantity}"
+                th:attr="aria-label=#{cart.quantity}"
+              />
+            </td>
+            <td class="cart-number">@ <span th:text="${#numbers.formatCurrency(line.unitPrice)}">$16.50</span></td>
+          </tr>
+          <tr class="cart-total">
+            <td colspan="2">
+              <button type="submit" form="cart-update" th:text="#{cart.update}">Update Cart</button>
+            </td>
+            <td class="cart-number"><b th:text="#{cart.total}">Total:</b></td>
+            <td class="cart-number cart-sum" th:text="${#numbers.formatCurrency(cart.subTotal())}">$16.50</td>
+          </tr>
+        </table>
+      </th:block>
+    </main>
+  </body>
+</html>

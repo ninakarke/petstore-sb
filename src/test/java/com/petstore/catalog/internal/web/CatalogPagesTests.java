@@ -190,7 +190,8 @@ class CatalogPagesTests {
     for (String url :
         new String[] {"/", "/categories/DOGS", "/items/EST-1", "/search?keywords=x"}) {
       String body = body(url);
-      String sidebar = body.substring(body.indexOf("class=\"sidebar\""), body.indexOf("</nav>"));
+      int sidebarStart = body.indexOf("class=\"sidebar\"");
+      String sidebar = body.substring(sidebarStart, body.indexOf("</nav>", sidebarStart));
 
       assertThat(sidebar)
           .as("sidebar of %s", url)

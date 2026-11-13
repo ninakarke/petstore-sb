@@ -45,12 +45,31 @@ class LegacyUrlRedirectTests {
           /search.screen?keywords=dog                           | /search?keywords=dog
           /search.screen?keywords=great%20dog&start=2&count=2   | /search?keywords=great%20dog&start=2
           /search.screen                                        | /search?keywords=
+          /cart.screen                                          | /cart
+          /cart.do                                              | /cart
+          /petstore/cart.do                                     | /cart
+          /cart.do?action=purchase&itemId=EST-1                 | /items/EST-1
+          /cart.do?action=remove&itemId=EST-1                   | /cart
+          /cart.do?action=update&itemQuantity_EST-1=9           | /cart
           """)
   @DisplayName("legacy address is permanently redirected to its replacement")
   void legacyAddressIsRedirected(String legacy, String replacement) {
     assertThat(mvc.get().uri(java.net.URI.create(legacy)))
         .hasStatus(HttpStatus.MOVED_PERMANENTLY)
         .hasHeader("Location", replacement);
+  }
+
+  @Test
+  @DisplayName("fixed: fetching a legacy cart address does not change the cart")
+  void legacyCartAddressDoesNotChangeTheCart() {
+    org.springframework.mock.web.MockHttpSession session =
+        new org.springframework.mock.web.MockHttpSession();
+
+    mvc.get().uri("/cart.do?action=purchase&itemId=EST-1").session(session).exchange();
+
+    assertThat(mvc.get().uri("/cart").session(session))
+        .bodyText()
+        .contains("Your Shopping Cart is Empty.");
   }
 
   @Test

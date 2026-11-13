@@ -11,6 +11,9 @@
           <input type="search" name="keywords" size="8" th:attr="aria-label=#{banner.search}" />
           <button type="submit" th:text="#{banner.search}">Search</button>
         </form>
+        <nav class="banner-links">
+          <a th:href="@{/cart}" href="/cart" th:text="#{banner.cart}">Cart</a>
+        </nav>
       </div>
     </header>
   </body>

@@ -24,6 +24,7 @@
             </div>
             <div class="listing-side">
               <span class="price" th:text="${#numbers.formatCurrency(item.unitCost)}">$10.00</span>
+            <form th:replace="~{cart/add-to-cart :: button(${item.itemId})}"></form>
             </div>
           </li>
         </ul>

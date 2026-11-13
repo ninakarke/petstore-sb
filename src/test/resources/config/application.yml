@@ -1,0 +1,8 @@
+# Settings that apply to every test, merged over the application's own.
+
+petstore:
+  images:
+    # Tests must give the same result on every machine, so they never look in
+    # the developer's local picture folder. Tests about local pictures point
+    # this at a temporary folder of their own.
+    local-directory: target/no-local-pictures

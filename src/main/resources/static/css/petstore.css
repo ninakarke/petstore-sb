@@ -187,3 +187,49 @@ a {
   max-width: 12rem;
   height: auto;
 }
+
+.banner-links {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #003399;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.add-to-cart {
+  margin: 0.2rem 0 0;
+}
+
+.cart {
+  width: 100%;
+  border: 1px solid #808080;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.cart td {
+  padding: 0.3rem 0.5rem;
+}
+
+.cart form {
+  margin: 0;
+}
+
+.cart-name {
+  width: 50%;
+}
+
+.cart-number {
+  text-align: right;
+}
+
+.cart-sum {
+  background: #ccccff;
+}
