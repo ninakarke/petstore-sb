@@ -183,6 +183,50 @@ class MongoCatalogStore implements CatalogStore, InitializingBean {
         document.unitCost());
   }
 
+  // ---- reading everything -------------------------------------------------------------------
+
+  @Override
+  public List<StoredCategory> categoriesFrom(String startId, int limit) {
+    return mongo.find(inKeyOrderFrom(startId, limit), CategoryDocument.class).stream()
+        .map(document ->
+            new StoredCategory(
+                document.id(),
+                new CategoryText(document.name(), document.image(), document.description())))
+        .toList();
+  }
+
+  @Override
+  public List<StoredProduct> productsFrom(String startId, int limit) {
+    return mongo.find(inKeyOrderFrom(startId, limit), ProductDocument.class).stream()
+        .map(document ->
+            new StoredProduct(
+                document.id(),
+                document.categoryId(),
+                new ProductText(document.name(), document.image(), document.description())))
+        .toList();
+  }
+
+  @Override
+  public List<StoredItem> itemsFrom(String startId, int limit) {
+    return mongo.find(inKeyOrderFrom(startId, limit), ItemDocument.class).stream()
+        .map(document ->
+            new StoredItem(
+                document.id(),
+                document.productId(),
+                new ItemDetails(
+                    document.listPrice(),
+                    document.unitCost(),
+                    document.image(),
+                    document.description(),
+                    document.attributes())))
+        .toList();
+  }
+
+  private static Query inKeyOrderFrom(String startId, int limit) {
+    Query query = startId == null ? new Query() : query(where("_id").gte(startId));
+    return query.with(BY_ID).limit(limit);
+  }
+
   // ---- writes ------------------------------------------------------------------------------
 
   @Override

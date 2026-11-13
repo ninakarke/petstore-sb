@@ -9,6 +9,8 @@ import com.petstore.customer.Profile;
 import com.petstore.customer.internal.CustomerStore;
 import com.petstore.shared.RelationalStore;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +66,25 @@ class JpaCustomerStore implements CustomerStore {
                 profile.favoriteCategory,
                 profile.myListPreference,
                 profile.bannerPreference)));
+  }
+
+  /** Reads the keys of one batch, then each customer as {@link #find} does. */
+  @Override
+  public List<Customer> customersFrom(String startUserId, int limit) {
+    TypedQuery<String> ids =
+        startUserId == null
+            ? entityManager.createQuery(
+                "select c.userId from CustomerEntity c order by c.userId", String.class)
+            : entityManager
+                .createQuery(
+                    "select c.userId from CustomerEntity c where c.userId >= :start"
+                        + " order by c.userId",
+                    String.class)
+                .setParameter("start", startUserId);
+    return ids.setMaxResults(limit).getResultList().stream()
+        .map(this::find)
+        .flatMap(Optional::stream)
+        .toList();
   }
 
   /** Rows are written parent first, so the foreign keys always find their target. */

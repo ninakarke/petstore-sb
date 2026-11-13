@@ -1,6 +1,7 @@
 package com.petstore.identity.internal;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,6 +21,16 @@ public class InMemoryUserStore implements UserStore {
   @Override
   public boolean create(String username, String passwordHash) {
     return hashes.putIfAbsent(username, passwordHash) == null;
+  }
+
+  @Override
+  public List<StoredUser> usersFrom(String startUsername, int limit) {
+    return hashes.entrySet().stream()
+        .filter(entry -> startUsername == null || entry.getKey().compareTo(startUsername) >= 0)
+        .sorted(Map.Entry.comparingByKey())
+        .limit(limit)
+        .map(entry -> new StoredUser(entry.getKey(), entry.getValue()))
+        .toList();
   }
 
   @Override

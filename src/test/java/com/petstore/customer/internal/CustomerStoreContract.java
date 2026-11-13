@@ -134,4 +134,19 @@ public abstract class CustomerStoreContract {
 
     assertThat(store().find("j2ee-zh")).contains(customer);
   }
+
+  @Test
+  @DisplayName("all customers can be read in key order, a batch at a time, complete")
+  void customersCanBeReadInBatches() {
+    store().save(CustomerFixtures.customer("carol"));
+    store().save(CustomerFixtures.customer("alice"));
+    store().save(CustomerFixtures.customer("bob"));
+
+    assertThat(store().customersFrom(null, 2))
+        .containsExactly(CustomerFixtures.customer("alice"), CustomerFixtures.customer("bob"));
+    assertThat(store().customersFrom("bob", 5))
+        .extracting(Customer::userId)
+        .containsExactly("bob", "carol");
+    assertThat(store().customersFrom("zoe", 5)).isEmpty();
+  }
 }

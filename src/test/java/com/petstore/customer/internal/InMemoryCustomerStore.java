@@ -1,7 +1,9 @@
 package com.petstore.customer.internal;
 
 import com.petstore.customer.Customer;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,6 +23,15 @@ public class InMemoryCustomerStore implements CustomerStore {
   @Override
   public void save(Customer customer) {
     customers.put(customer.userId(), customer);
+  }
+
+  @Override
+  public List<Customer> customersFrom(String startUserId, int limit) {
+    return customers.values().stream()
+        .filter(customer -> startUserId == null || customer.userId().compareTo(startUserId) >= 0)
+        .sorted(Comparator.comparing(Customer::userId))
+        .limit(limit)
+        .toList();
   }
 
   @Override

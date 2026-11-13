@@ -54,4 +54,16 @@ class MongoOrderIdGenerator implements OrderIdGenerator, InitializingBean {
     // Legacy: getName() + String.valueOf(count)
     return PREFIX + counter.value();
   }
+
+  @Override
+  public long lastNumber() {
+    CounterDocument counter = mongo.findOne(THE_COUNTER, CounterDocument.class);
+    return counter == null ? 0 : counter.value();
+  }
+
+  /** One atomic "set to the larger of the two", so it cannot undo a number issued meanwhile. */
+  @Override
+  public void advanceTo(long number) {
+    mongo.updateFirst(THE_COUNTER, new Update().max("value", number), CounterDocument.class);
+  }
 }

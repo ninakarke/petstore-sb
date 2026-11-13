@@ -107,6 +107,14 @@ class MongoOrderStore implements OrderStore, InitializingBean {
     return mongo.find(query, OrderDocument.class).stream().map(OrderDocument::toOrder).toList();
   }
 
+  @Override
+  public List<Order> ordersFrom(String startOrderId, int limit) {
+    Query query = startOrderId == null ? new Query() : query(where("_id").gte(startOrderId));
+    return mongo.find(query.with(Sort.by("_id")).limit(limit), OrderDocument.class).stream()
+        .map(OrderDocument::toOrder)
+        .toList();
+  }
+
   /** Replaces the hand-off part of the document and nothing else. */
   @Override
   public void updateHandoff(String orderId, Handoff handoff) {

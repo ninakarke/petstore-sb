@@ -1,9 +1,14 @@
 package com.petstore.customer.internal.persistence.mongo;
 
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
+
 import com.petstore.customer.Customer;
 import com.petstore.customer.internal.CustomerStore;
 import com.petstore.shared.DocumentStore;
+import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -33,6 +38,14 @@ class MongoCustomerStore implements CustomerStore {
   @Override
   public void save(Customer customer) {
     mongo.save(CustomerDocument.of(customer));
+  }
+
+  @Override
+  public List<Customer> customersFrom(String startUserId, int limit) {
+    Query query = startUserId == null ? new Query() : query(where("_id").gte(startUserId));
+    return mongo.find(query.with(Sort.by("_id")).limit(limit), CustomerDocument.class).stream()
+        .map(CustomerDocument::toCustomer)
+        .toList();
   }
 
   @Override

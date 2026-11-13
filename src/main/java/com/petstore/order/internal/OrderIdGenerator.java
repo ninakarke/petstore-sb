@@ -17,4 +17,14 @@ public interface OrderIdGenerator {
   String PREFIX = "1001";
 
   String nextOrderId();
+
+  /** The counter value of the last number handed out; zero if none has been. */
+  long lastNumber();
+
+  /**
+   * Makes sure the next number handed out is greater than the given counter value. Never moves the
+   * counter backwards. Used when orders are copied in from another store, so that numbers already
+   * in use are not handed out again.
+   */
+  void advanceTo(long number);
 }

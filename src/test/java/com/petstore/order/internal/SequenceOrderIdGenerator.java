@@ -15,6 +15,16 @@ public class SequenceOrderIdGenerator implements OrderIdGenerator {
     return PREFIX + counter.incrementAndGet();
   }
 
+  @Override
+  public long lastNumber() {
+    return counter.get();
+  }
+
+  @Override
+  public void advanceTo(long number) {
+    counter.accumulateAndGet(Math.toIntExact(number), Math::max);
+  }
+
   public void reset() {
     counter.set(0);
   }

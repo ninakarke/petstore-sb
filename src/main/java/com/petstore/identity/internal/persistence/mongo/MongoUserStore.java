@@ -1,9 +1,14 @@
 package com.petstore.identity.internal.persistence.mongo;
 
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
+
 import com.petstore.identity.internal.UserStore;
 import com.petstore.shared.DocumentStore;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -37,6 +42,14 @@ class MongoUserStore implements UserStore {
     } catch (DuplicateKeyException alreadyExists) {
       return false;
     }
+  }
+
+  @Override
+  public List<StoredUser> usersFrom(String startUsername, int limit) {
+    Query query = startUsername == null ? new Query() : query(where("_id").gte(startUsername));
+    return mongo.find(query.with(Sort.by("_id")).limit(limit), UserDocument.class).stream()
+        .map(user -> new StoredUser(user.username(), user.passwordHash()))
+        .toList();
   }
 
   @Override

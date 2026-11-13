@@ -10,9 +10,14 @@ import com.petstore.catalog.Product;
 import com.petstore.catalog.internal.CatalogStore.CategoryText;
 import com.petstore.catalog.internal.CatalogStore.ItemDetails;
 import com.petstore.catalog.internal.CatalogStore.ProductText;
+import com.petstore.catalog.internal.CatalogStore.StoredCategory;
+import com.petstore.catalog.internal.CatalogStore.StoredItem;
+import com.petstore.catalog.internal.CatalogStore.StoredProduct;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -321,5 +326,62 @@ public abstract class CatalogStoreContract {
         "fish.gif",
         description,
         List.of(attributes));
+  }
+
+  // ---- reading everything (used to copy the catalog to another store) ------------------------
+
+  @Test
+  @DisplayName("everything stored can be read batch by batch, and each record comes once")
+  void everythingCanBeReadInBatches() {
+    assertThat(keysInBatchesOfTwo(start -> store().categoriesFrom(start, 2), StoredCategory::id))
+        .containsExactlyInAnyOrder("FISH", "DOGS", "BIRDS");
+    assertThat(keysInBatchesOfTwo(start -> store().productsFrom(start, 2), StoredProduct::id))
+        .containsExactlyInAnyOrder("FI-SW-01", "FI-SW-02", "FI-FW-01", "K9-BD-01", "AV-CB-01");
+    assertThat(keysInBatchesOfTwo(start -> store().itemsFrom(start, 2), StoredItem::id))
+        .containsExactlyInAnyOrder("EST-1", "EST-2", "EST-3", "EST-4", "EST-6", "EST-18");
+  }
+
+  @Test
+  @DisplayName("a record is read back with everything that was saved, also what no page shows")
+  void storedRecordsAreComplete() {
+    assertThat(store().categoriesFrom("FISH", 1))
+        .containsExactly(new StoredCategory("FISH", category("Fish")));
+    assertThat(store().productsFrom("K9-BD-01", 1))
+        .containsExactly(
+            new StoredProduct("K9-BD-01", "DOGS", product("Bulldog", "Friendly dog from England")));
+    assertThat(store().itemsFrom("EST-1", 1))
+        .containsExactly(
+            new StoredItem(
+                "EST-1",
+                "FI-SW-01",
+                item("16.50", "10.00", "Fresh Water fish from Japan", "Large", "Cuddly")));
+  }
+
+  @Test
+  @DisplayName("reading from a key that is not there starts at the next one, or gives nothing")
+  void readingFromAMissingKey() {
+    assertThat(store().categoriesFrom("CATS", 1))
+        .extracting(StoredCategory::id)
+        .containsExactly("DOGS");
+    assertThat(store().categoriesFrom("ZEBRAS", 5)).isEmpty();
+  }
+
+  /** Reads a whole listing two records at a time; the start key of a batch is inclusive. */
+  private static <T> List<String> keysInBatchesOfTwo(
+      Function<String, List<T>> read, Function<T, String> keyOf) {
+    List<String> keys = new ArrayList<>();
+    String start = null;
+    while (true) {
+      List<T> batch = read.apply(start);
+      for (T record : batch) {
+        if (!keyOf.apply(record).equals(start)) {
+          keys.add(keyOf.apply(record));
+        }
+      }
+      if (batch.size() < 2) {
+        return keys;
+      }
+      start = keyOf.apply(batch.get(batch.size() - 1));
+    }
   }
 }

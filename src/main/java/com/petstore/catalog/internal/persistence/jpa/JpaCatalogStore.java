@@ -9,12 +9,15 @@ import com.petstore.shared.RelationalStore;
 import com.petstore.shared.StoreLocale;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -223,6 +226,88 @@ class JpaCatalogStore implements CatalogStore {
       escaped.append(character);
     }
     return escaped.append('%').toString();
+  }
+
+  // ---- reading everything -------------------------------------------------------------------
+
+  @Override
+  public List<StoredCategory> categoriesFrom(String startId, int limit) {
+    return rowsFrom(
+            """
+            select c.id, d.name, d.image, d.description
+              from CategoryEntity c, CategoryDetailsEntity d
+             where c.id = d.id.categoryId and d.id.locale = :locale
+            """,
+            "c.id",
+            startId,
+            limit)
+        .map(row ->
+            new StoredCategory(
+                text(row[0]), new CategoryText(text(row[1]), text(row[2]), text(row[3]))))
+        .toList();
+  }
+
+  @Override
+  public List<StoredProduct> productsFrom(String startId, int limit) {
+    return rowsFrom(
+            """
+            select p.id, p.categoryId, d.name, d.image, d.description
+              from ProductEntity p, ProductDetailsEntity d
+             where p.id = d.id.productId and d.id.locale = :locale
+            """,
+            "p.id",
+            startId,
+            limit)
+        .map(row ->
+            new StoredProduct(
+                text(row[0]),
+                text(row[1]),
+                new ProductText(text(row[2]), text(row[3]), text(row[4]))))
+        .toList();
+  }
+
+  @Override
+  public List<StoredItem> itemsFrom(String startId, int limit) {
+    return rowsFrom(
+            """
+            select i.id, i.productId, d.listPrice, d.unitCost, d.image, d.description,
+                   d.attr1, d.attr2, d.attr3, d.attr4, d.attr5
+              from ItemEntity i, ItemDetailsEntity d
+             where i.id = d.id.itemId and d.id.locale = :locale
+            """,
+            "i.id",
+            startId,
+            limit)
+        .map(row ->
+            new StoredItem(
+                text(row[0]),
+                text(row[1]),
+                new ItemDetails(
+                    (BigDecimal) row[2],
+                    (BigDecimal) row[3],
+                    text(row[4]),
+                    text(row[5]),
+                    Stream.of(row[6], row[7], row[8], row[9], row[10])
+                        .filter(Objects::nonNull)
+                        .map(JpaCatalogStore::text)
+                        .toList())))
+        .toList();
+  }
+
+  /** Runs a select over the English rows, in key order, starting at a key. */
+  private Stream<Object[]> rowsFrom(String select, String key, String startId, int limit) {
+    String jpql =
+        select + (startId == null ? "" : " and " + key + " >= :start") + " order by " + key;
+    TypedQuery<Object[]> query =
+        entityManager.createQuery(jpql, Object[].class).setParameter("locale", LOCALE);
+    if (startId != null) {
+      query.setParameter("start", startId);
+    }
+    return query.setMaxResults(limit).getResultList().stream();
+  }
+
+  private static String text(Object value) {
+    return (String) value;
   }
 
   // ---- writes ------------------------------------------------------------------------------

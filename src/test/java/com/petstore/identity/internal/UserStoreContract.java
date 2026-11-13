@@ -76,4 +76,22 @@ public abstract class UserStoreContract {
     assertThat(store().create(name, "hash")).isTrue();
     assertThat(store().find(name)).isPresent();
   }
+
+  @Test
+  @DisplayName("all users can be read in key order, a batch at a time")
+  void usersCanBeReadInBatches() {
+    store().create("carol", "{noop}c");
+    store().create("alice", "{noop}a");
+    store().create("bob", "{noop}b");
+
+    assertThat(store().usersFrom(null, 2))
+        .containsExactly(new StoredUser("alice", "{noop}a"), new StoredUser("bob", "{noop}b"));
+    assertThat(store().usersFrom("bob", 5))
+        .extracting(StoredUser::username)
+        .containsExactly("bob", "carol");
+    assertThat(store().usersFrom("bz", 5))
+        .extracting(StoredUser::username)
+        .containsExactly("carol");
+    assertThat(store().usersFrom("zoe", 5)).isEmpty();
+  }
 }

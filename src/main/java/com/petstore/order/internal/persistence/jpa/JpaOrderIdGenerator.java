@@ -39,4 +39,27 @@ class JpaOrderIdGenerator implements OrderIdGenerator {
     // Legacy: getName() + String.valueOf(count)
     return PREFIX + counter.value;
   }
+
+  @Override
+  @Transactional(readOnly = true)
+  public long lastNumber() {
+    CounterEntity counter = entityManager.find(CounterEntity.class, PREFIX);
+    return counter == null ? 0 : counter.value;
+  }
+
+  /**
+   * Locks the row like {@link #nextOrderId}, so it cannot interleave with a number being issued.
+   */
+  @Override
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void advanceTo(long number) {
+    CounterEntity counter =
+        entityManager.find(CounterEntity.class, PREFIX, LockModeType.PESSIMISTIC_WRITE);
+    if (counter == null) {
+      throw new IllegalStateException("The order counter row '" + PREFIX + "' is missing");
+    }
+    if (counter.value < number) {
+      counter.value = Math.toIntExact(number);
+    }
+  }
 }

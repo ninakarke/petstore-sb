@@ -81,4 +81,26 @@ public abstract class OrderIdGeneratorContract {
       pool.shutdownNow();
     }
   }
+
+  // ---- continuing the numbering of another store ---------------------------------------------
+
+  @Test
+  void lastNumberIsTheCounterOfTheLastOrderId() {
+    assertThat(generator().lastNumber()).isZero();
+
+    generator().nextOrderId();
+    generator().nextOrderId();
+
+    assertThat(generator().lastNumber()).isEqualTo(2);
+  }
+
+  @Test
+  @DisplayName("after orders are copied in, numbering continues above them and never moves back")
+  void advancingSkipsNumbersAlreadyInUse() {
+    generator().advanceTo(41);
+    assertThat(generator().nextOrderId()).isEqualTo("100142");
+
+    generator().advanceTo(7);
+    assertThat(generator().nextOrderId()).isEqualTo("100143");
+  }
 }

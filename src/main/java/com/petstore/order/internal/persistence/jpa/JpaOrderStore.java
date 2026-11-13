@@ -7,6 +7,7 @@ import com.petstore.order.internal.OrderStore;
 import com.petstore.shared.RelationalStore;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 import org.hibernate.exception.ConstraintViolationException;
@@ -93,6 +94,20 @@ class JpaOrderStore implements OrderStore {
         .getResultStream()
         .map(OrderEntity::toOrder)
         .toList();
+  }
+
+  @Override
+  public List<Order> ordersFrom(String startOrderId, int limit) {
+    TypedQuery<OrderEntity> query =
+        startOrderId == null
+            ? entityManager.createQuery(
+                "select o from OrderEntity o order by o.orderId", OrderEntity.class)
+            : entityManager
+                .createQuery(
+                    "select o from OrderEntity o where o.orderId >= :start order by o.orderId",
+                    OrderEntity.class)
+                .setParameter("start", startOrderId);
+    return query.setMaxResults(limit).getResultList().stream().map(OrderEntity::toOrder).toList();
   }
 
   @Override

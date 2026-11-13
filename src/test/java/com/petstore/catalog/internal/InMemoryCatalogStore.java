@@ -27,9 +27,9 @@ public class InMemoryCatalogStore implements CatalogStore {
 
   private record ItemRow(String productId, ItemDetails details) {}
 
-  private final Map<String, CategoryText> categories = new TreeMap<>();
-  private final Map<String, ProductRow> products = new TreeMap<>();
-  private final Map<String, ItemRow> items = new TreeMap<>();
+  private final TreeMap<String, CategoryText> categories = new TreeMap<>();
+  private final TreeMap<String, ProductRow> products = new TreeMap<>();
+  private final TreeMap<String, ItemRow> items = new TreeMap<>();
 
   @Override
   public Optional<Category> findCategory(String categoryId) {
@@ -148,6 +148,37 @@ public class InMemoryCatalogStore implements CatalogStore {
     refuseIf(items.containsKey(itemId), "Item " + itemId + " exists");
     refuseIf(!products.containsKey(productId), "No product " + productId);
     items.put(itemId, new ItemRow(productId, details));
+  }
+
+  @Override
+  public List<StoredCategory> categoriesFrom(String startId, int limit) {
+    return from(categories, startId, limit)
+        .map(entry -> new StoredCategory(entry.getKey(), entry.getValue()))
+        .toList();
+  }
+
+  @Override
+  public List<StoredProduct> productsFrom(String startId, int limit) {
+    return from(products, startId, limit)
+        .map(entry ->
+            new StoredProduct(
+                entry.getKey(), entry.getValue().categoryId(), entry.getValue().text()))
+        .toList();
+  }
+
+  @Override
+  public List<StoredItem> itemsFrom(String startId, int limit) {
+    return from(items, startId, limit)
+        .map(entry ->
+            new StoredItem(
+                entry.getKey(), entry.getValue().productId(), entry.getValue().details()))
+        .toList();
+  }
+
+  private static <V> Stream<Map.Entry<String, V>> from(
+      TreeMap<String, V> rows, String startId, int limit) {
+    Map<String, V> range = startId == null ? rows : rows.tailMap(startId, true);
+    return range.entrySet().stream().limit(limit);
   }
 
   /** What primary and foreign keys do in a database. */

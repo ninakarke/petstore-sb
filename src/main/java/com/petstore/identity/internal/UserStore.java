@@ -1,5 +1,6 @@
 package com.petstore.identity.internal;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,6 +21,13 @@ public interface UserStore {
   boolean create(String username, String passwordHash);
 
   boolean isEmpty();
+
+  /**
+   * Users in the store's key order: at most {@code limit} of them, starting with the user of the
+   * given name, or with the first one if the name is {@code null}. If there is no user of that
+   * name, the list starts with the next one in key order. Used to copy users to another store.
+   */
+  List<StoredUser> usersFrom(String startUsername, int limit);
 
   /** A user as stored: the name and the hash of the password, never the password. */
   record StoredUser(String username, String passwordHash) {}

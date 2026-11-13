@@ -76,4 +76,13 @@ public class InMemoryOrderStore implements OrderStore {
   public synchronized void clear() {
     orders.clear();
   }
+
+  @Override
+  public synchronized List<Order> ordersFrom(String startOrderId, int limit) {
+    return orders.values().stream()
+        .filter(order -> startOrderId == null || order.orderId().compareTo(startOrderId) >= 0)
+        .sorted(Comparator.comparing(Order::orderId))
+        .limit(limit)
+        .toList();
+  }
 }

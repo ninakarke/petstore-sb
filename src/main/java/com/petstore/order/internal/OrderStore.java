@@ -35,4 +35,11 @@ public interface OrderStore {
 
   /** Replaces the hand-off state of an order. */
   void updateHandoff(String orderId, Handoff handoff);
+
+  /**
+   * Orders in the store's key order: at most {@code limit} of them, starting with the order of the
+   * given id, or with the first one if the id is {@code null}. If there is no such order, the list
+   * starts with the next one in key order. Used to copy orders to another store.
+   */
+  List<Order> ordersFrom(String startOrderId, int limit);
 }

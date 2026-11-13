@@ -4,6 +4,8 @@ import com.petstore.identity.internal.UserStore;
 import com.petstore.shared.RelationalStore;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
+import jakarta.persistence.TypedQuery;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
@@ -47,6 +49,22 @@ class JpaUserStore implements UserStore {
       entityManager.clear();
       return false;
     }
+  }
+
+  @Override
+  public List<StoredUser> usersFrom(String startUsername, int limit) {
+    TypedQuery<UserEntity> query =
+        startUsername == null
+            ? entityManager.createQuery(
+                "select u from UserEntity u order by u.username", UserEntity.class)
+            : entityManager
+                .createQuery(
+                    "select u from UserEntity u where u.username >= :start order by u.username",
+                    UserEntity.class)
+                .setParameter("start", startUsername);
+    return query.setMaxResults(limit).getResultList().stream()
+        .map(user -> new StoredUser(user.username(), user.passwordHash()))
+        .toList();
   }
 
   @Override

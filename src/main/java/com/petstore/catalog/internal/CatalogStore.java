@@ -60,6 +60,30 @@ public interface CatalogStore {
 
   void saveItem(String itemId, String productId, ItemDetails details);
 
+  // ---- reading everything, used to copy the catalog to another store -------------------------
+
+  /**
+   * Categories exactly as stored, in the store's key order: at most {@code limit} of them, starting
+   * with the category that has the given id, or with the first one if the id is {@code null}. If no
+   * category has that id, the list starts with the next one in key order.
+   */
+  List<StoredCategory> categoriesFrom(String startId, int limit);
+
+  /** Products exactly as stored, in key order. See {@link #categoriesFrom}. */
+  List<StoredProduct> productsFrom(String startId, int limit);
+
+  /** Items exactly as stored, in key order. See {@link #categoriesFrom}. */
+  List<StoredItem> itemsFrom(String startId, int limit);
+
+  /** A category as stored, including what no page shows. */
+  record StoredCategory(String id, CategoryText text) {}
+
+  /** A product as stored. */
+  record StoredProduct(String id, String categoryId, ProductText text) {}
+
+  /** An item as stored. */
+  record StoredItem(String id, String productId, ItemDetails details) {}
+
   /** Text of a category. */
   record CategoryText(String name, String image, String description) {}
 

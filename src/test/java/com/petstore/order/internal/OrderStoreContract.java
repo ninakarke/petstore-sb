@@ -186,4 +186,23 @@ public abstract class OrderStoreContract {
 
     assertThat(store().findByUser("j2ee")).hasSize(2);
   }
+
+  // ---- reading everything (used to copy orders to another store) -----------------------------
+
+  @Test
+  @DisplayName("all orders can be read in key order, a batch at a time, complete")
+  void ordersCanBeReadInBatches() {
+    store().save(OrderFixtures.order("10013", "shopper", NOON.plusSeconds(120)));
+    store().save(OrderFixtures.order("10011", "j2ee", NOON, "key-1"));
+    store().save(OrderFixtures.order("10012", "j2ee", NOON.plusSeconds(60)));
+
+    assertThat(store().ordersFrom(null, 2))
+        .containsExactly(
+            OrderFixtures.order("10011", "j2ee", NOON, "key-1"),
+            OrderFixtures.order("10012", "j2ee", NOON.plusSeconds(60)));
+    assertThat(store().ordersFrom("10012", 5))
+        .extracting(Order::orderId)
+        .containsExactly("10012", "10013");
+    assertThat(store().ordersFrom("2", 5)).isEmpty();
+  }
 }
