@@ -9,6 +9,15 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+  # Message broker for handing orders off to order processing. The
+  # application runs its own (in memory), so none has to be installed. To use
+  # an external broker instead, set spring.artemis.mode=native and its address.
+  artemis:
+    mode: embedded
+    embedded:
+      enabled: true
+      persistent: false
+      queues: ${petstore.order.handoff.queue}
   flyway:
     placeholders:
       # Appended to the text columns that lists are sorted on, to make every
@@ -38,6 +47,18 @@ petstore:
     token:
       secret: ${PETSTORE_TOKEN_SECRET:}
       lifetime: 15m
+  order:
+    handoff:
+      # jms: put the purchase-order document on the queue. log: only log it.
+      transport: jms
+      # The queue name of the legacy application.
+      queue: jms/opc/OrderQueue
+      # A stand-in for the out-of-scope order-processing application that
+      # takes the messages off the queue and logs them. Switch off when a
+      # real consumer is attached.
+      stub-consumer: true
+      # How often undelivered orders are tried again.
+      retry-interval: 30s
   catalog:
     # Results per page on the category, product and search pages (legacy: 2).
     page-size: 2

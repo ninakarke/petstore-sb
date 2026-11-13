@@ -62,7 +62,14 @@ class OrderServiceTests {
   private final CustomerService customers = new CustomerService(new InMemoryCustomerStore());
   private final OrderProperties properties =
       new OrderProperties(
-          999, new OrderProperties.Handoff(Duration.ofSeconds(30), Duration.ofSeconds(15), 50));
+          999,
+          new OrderProperties.Handoff(
+              Duration.ofSeconds(30),
+              Duration.ofSeconds(15),
+              50,
+              "log",
+              "jms/opc/OrderQueue",
+              false));
   private final Clock clock = Clock.fixed(OrderFixtures.NOON, ZoneOffset.UTC);
   private final OrderService orders =
       new OrderService(

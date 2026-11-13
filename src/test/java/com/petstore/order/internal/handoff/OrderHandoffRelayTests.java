@@ -30,7 +30,14 @@ class OrderHandoffRelayTests {
   private final RecordingPublisher publisher = new RecordingPublisher();
   private final OrderProperties properties =
       new OrderProperties(
-          999, new OrderProperties.Handoff(Duration.ofSeconds(30), Duration.ofSeconds(15), 2));
+          999,
+          new OrderProperties.Handoff(
+              Duration.ofSeconds(30),
+              Duration.ofSeconds(15),
+              2,
+              "log",
+              "jms/opc/OrderQueue",
+              false));
   private final OrderHandoffRelay relay =
       new OrderHandoffRelay(store, publisher, properties, Clock.fixed(LATER, ZoneOffset.UTC));
 

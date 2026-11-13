@@ -4,6 +4,7 @@ import com.petstore.order.internal.handoff.LoggingOrderHandoffPublisher;
 import com.petstore.order.internal.handoff.OrderHandoffPublisher;
 import java.time.Clock;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -20,9 +21,9 @@ class OrderConfiguration {
     return Clock.systemDefaultZone();
   }
 
-  /** Used when no other way of handing orders off is configured. */
+  /** Hand-off without a message broker: {@code petstore.order.handoff.transport=log}. */
   @Bean
-  @ConditionalOnMissingBean(OrderHandoffPublisher.class)
+  @ConditionalOnProperty(name = "petstore.order.handoff.transport", havingValue = "log")
   OrderHandoffPublisher loggingOrderHandoffPublisher(Clock clock) {
     return new LoggingOrderHandoffPublisher(clock);
   }

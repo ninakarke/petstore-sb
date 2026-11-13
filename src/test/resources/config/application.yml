@@ -6,3 +6,8 @@ petstore:
     # the developer's local picture folder. Tests about local pictures point
     # this at a temporary folder of their own.
     local-directory: target/no-local-pictures
+  order:
+    handoff:
+      # Tests read the order queue themselves, so nothing else may take
+      # messages off it. Tests of the stand-in consumer switch it back on.
+      stub-consumer: false
