@@ -4,6 +4,8 @@ import com.petstore.identity.internal.web.KeepLanguageOnSignOut;
 import com.petstore.identity.internal.web.RememberUsernameFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,6 +28,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  *   <li>the form fields keep their legacy names, {@code j_username} and {@code j_password}.
  * </ul>
  *
+ * <p>The JSON API under {@code /api} has its own, stateless rules; see {@code
+ * ApiSecurityConfiguration}. This configuration applies to everything else.
+ *
  * <p>What the legacy filter did not have: CSRF protection on every state-changing request, standard
  * security headers, a new session id at sign-in, and sign-out by POST only.
  */
@@ -45,6 +50,7 @@ class SecurityConfiguration {
   static final String PASSWORD_PARAMETER = "j_password";
 
   @Bean
+  @Order(Ordered.LOWEST_PRECEDENCE)
   SecurityFilterChain webSecurity(HttpSecurity http, IdentityProperties properties)
       throws Exception {
     KeepLanguageOnSignOut keepLanguage = new KeepLanguageOnSignOut(SIGNED_OUT_PATH);

@@ -33,6 +33,11 @@ petstore:
       - /account/**
       - /checkout/**
       - /orders/**
+    # Bearer tokens of the JSON API. Set PETSTORE_TOKEN_SECRET (Base64, at
+    # least 32 bytes) to keep tokens valid across restarts and instances.
+    token:
+      secret: ${PETSTORE_TOKEN_SECRET:}
+      lifetime: 15m
   catalog:
     # Results per page on the category, product and search pages (legacy: 2).
     page-size: 2
