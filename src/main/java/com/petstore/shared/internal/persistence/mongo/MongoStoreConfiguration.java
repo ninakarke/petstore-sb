@@ -1,8 +1,10 @@
 package com.petstore.shared.internal.persistence.mongo;
 
 import com.petstore.shared.DocumentStore;
+import com.petstore.shared.StoreMigration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
@@ -15,9 +17,12 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
  *
  * <p>Each module's adapter declares its own document classes; those classes are the schema of its
  * collections. Nothing here knows about any of them.
+ *
+ * <p>Active when MongoDB is the data store, and in the job that copies data into MongoDB, so that
+ * copied documents look exactly like the ones the application writes.
  */
 @Configuration(proxyBeanMethods = false)
-@DocumentStore
+@Profile({DocumentStore.PROFILE, StoreMigration.PROFILE})
 public class MongoStoreConfiguration {
 
   /**

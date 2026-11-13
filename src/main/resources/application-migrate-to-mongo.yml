@@ -1,0 +1,33 @@
+# Profile "migrate-to-mongo": a one-off job that copies everything from the
+# relational database into MongoDB, compares the two, reports, and exits with
+# code 0 if they match and 1 if they do not.
+#
+#   docker compose up -d postgres mongo
+#   java -jar target/petstore-*.jar --spring.profiles.active=postgres,migrate-to-mongo
+#
+# Source: the relational database of the other active profile ("postgres"), or
+# the embedded one with its seed data if there is none.
+# Target: MongoDB at PETSTORE_MONGODB_URI.
+#
+# Run it while the application is not taking orders. It can be run again:
+# records already copied are compared, not copied twice. Afterwards start the
+# application with the "mongo" profile.
+
+spring:
+  # Both database stacks are switched on. This list replaces the one in
+  # application.yml; the entry is a part of Spring Boot this application has no
+  # use for.
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.mongodb.autoconfigure.MongoReactiveAutoConfiguration
+  mongodb:
+    uri: ${PETSTORE_MONGODB_URI:mongodb://localhost:27017/petstore}
+  data:
+    mongodb:
+      representation:
+        big-decimal: decimal128
+
+server:
+  # The job serves no pages. Any free port will do, so it can run on a machine
+  # where the application itself is running.
+  port: 0
