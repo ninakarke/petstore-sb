@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomerService {
 
-  private static final int MAX_LENGTH = 255;
-
   private final CustomerStore customers;
 
   public CustomerService(CustomerStore customers) {
@@ -67,80 +65,40 @@ public class CustomerService {
     return customer;
   }
 
-  /**
-   * Trims every value, as the legacy form handler did, and turns blank optional values into "no
-   * value".
-   */
+  /** Trims every value, as the legacy form handler did. */
   private static CustomerDetails normalise(CustomerDetails details) {
-    ContactInfo contact = details.contactInfo();
-    Address address = contact.address();
     CreditCard card = details.creditCard();
     Profile profile = details.profile();
     return new CustomerDetails(
-        new ContactInfo(
-            trim(contact.givenName()),
-            trim(contact.familyName()),
-            new Address(
-                trim(address.streetName1()),
-                blankToNull(address.streetName2()),
-                trim(address.city()),
-                trim(address.state()),
-                trim(address.zipCode()),
-                blankToNull(address.country())),
-            blankToNull(contact.email()),
-            trim(contact.telephone())),
-        new CreditCard(trim(card.cardNumber()), trim(card.cardType()), trim(card.expiryDate())),
+        ContactRules.normalise(details.contactInfo()),
+        new CreditCard(
+            ContactRules.trim(card.cardNumber()),
+            ContactRules.trim(card.cardType()),
+            ContactRules.trim(card.expiryDate())),
         new Profile(
             language(profile.preferredLanguage()),
-            trim(profile.favoriteCategory()),
+            ContactRules.trim(profile.favoriteCategory()),
             profile.myListPreference(),
             profile.bannerPreference()));
   }
 
   /**
-   * Required fields. The legacy form handler listed the same ones (first name, last name, street
-   * address, city, state, postal code, telephone; second address line, country and e-mail are
-   * optional) but only checked them in the browser, and its checks of the card and profile fields
-   * had no effect. Here they are enforced on the server.
+   * Required fields: those of {@link ContactRules}, plus card number, card type, expiry date and
+   * favourite category. The legacy form handler's checks of the card and profile fields had no
+   * effect; here they are enforced on the server.
    */
   private static void validate(CustomerDetails details) {
-    EnumSet<CustomerField> problems = EnumSet.noneOf(CustomerField.class);
-    ContactInfo contact = details.contactInfo();
-    Address address = contact.address();
+    EnumSet<CustomerField> problems = ContactRules.problems(details.contactInfo());
     CreditCard card = details.creditCard();
-    Profile profile = details.profile();
-
-    require(contact.givenName(), CustomerField.GIVEN_NAME, problems);
-    require(contact.familyName(), CustomerField.FAMILY_NAME, problems);
-    require(address.streetName1(), CustomerField.STREET_ADDRESS, problems);
-    require(address.city(), CustomerField.CITY, problems);
-    require(address.state(), CustomerField.STATE, problems);
-    require(address.zipCode(), CustomerField.POSTAL_CODE, problems);
-    require(contact.telephone(), CustomerField.TELEPHONE, problems);
-    require(card.cardNumber(), CustomerField.CARD_NUMBER, problems);
-    require(card.cardType(), CustomerField.CARD_TYPE, problems);
+    ContactRules.require(card.cardNumber(), CustomerField.CARD_NUMBER, problems);
+    ContactRules.require(card.cardType(), CustomerField.CARD_TYPE, problems);
     if (card.expiryMonth().isBlank() || card.expiryYear().isBlank()) {
       problems.add(CustomerField.CARD_EXPIRY);
     }
-    require(profile.favoriteCategory(), CustomerField.FAVORITE_CATEGORY, problems);
-    tooLong(address.streetName2(), CustomerField.STREET_ADDRESS, problems);
-    tooLong(contact.email(), CustomerField.EMAIL, problems);
-
+    ContactRules.require(
+        details.profile().favoriteCategory(), CustomerField.FAVORITE_CATEGORY, problems);
     if (!problems.isEmpty()) {
       throw new InvalidCustomerException(problems);
-    }
-  }
-
-  private static void require(String value, CustomerField field, EnumSet<CustomerField> problems) {
-    if (value == null || value.isBlank()) {
-      problems.add(field);
-    }
-    tooLong(value, field, problems);
-  }
-
-  private static void tooLong(String value, CustomerField field, EnumSet<CustomerField> problems) {
-    if (value != null && value.length() > MAX_LENGTH) {
-      problems.add(field);
     }
   }
 
@@ -150,13 +108,5 @@ public class CustomerService {
    */
   private static String language(String value) {
     return value == null || value.isBlank() ? StoreLocale.CODE : value.trim();
-  }
-
-  private static String trim(String value) {
-    return value == null ? "" : value.trim();
-  }
-
-  private static String blankToNull(String value) {
-    return value == null || value.isBlank() ? null : value.trim();
   }
 }
