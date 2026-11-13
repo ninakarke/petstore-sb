@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<!--/* Legacy equivalent: the "order_complete" screen (order_completed.jsp). */-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{order.title}">Order Placed</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:text="#{order.heading}">Your Order is Complete</h1>
+      <p><span th:text="#{order.id}">Your order Id is</span> <b th:text="${order.orderId}">10011</b></p>
+      <p th:if="${order.email != null}">
+        <span th:text="#{order.email}">You should receive a confirmation e-mail soon at</span>
+        <b th:text="${order.email}">duke@example.com</b>
+      </p>
+      <p th:text="#{order.thanks}">Thank you for shopping with the Pet Store.</p>
+    </main>
+  </body>
+</html>

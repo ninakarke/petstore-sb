@@ -62,6 +62,9 @@ class LegacyUrlRedirectTests {
           /customer.do                                          | /account
           /update_customer.screen                               | /account/edit
           /create_customer.screen                               | /account/new
+          /enter_order_information.screen                       | /checkout
+          /order_complete.screen                                | /
+          /cart_empty_order_error.screen                        | /cart
           """)
   @DisplayName("legacy address is permanently redirected to its replacement")
   void legacyAddressIsRedirected(String legacy, String replacement) {

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!--/*
+  One block of the order form: the fields of a contact, with a name prefix
+  ("bill" or "ship"). Legacy equivalent: the two halves of
+  enter_order_information.jsp, whose fields carried the suffix _a or _b.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <body>
+    <th:block th:fragment="fields(prefix, contact)">
+      <label>
+        <span th:text="#{account.givenName}">First Name</span>
+        <input type="text" th:name="|${prefix}GivenName|" size="30" maxlength="30" th:value="${contact.givenName}" />
+      </label>
+      <label>
+        <span th:text="#{account.familyName}">Last Name</span>
+        <input type="text" th:name="|${prefix}FamilyName|" size="30" maxlength="30" th:value="${contact.familyName}" />
+      </label>
+      <label>
+        <span th:text="#{account.address}">Street Address</span>
+        <input type="text" th:name="|${prefix}Address1|" size="55" maxlength="70" th:value="${contact.address1}" />
+      </label>
+      <label>
+        <span></span>
+        <input type="text" th:name="|${prefix}Address2|" size="55" maxlength="70" th:value="${contact.address2}" th:attr="aria-label=#{account.address2}" />
+      </label>
+      <label>
+        <span th:text="#{account.city}">City</span>
+        <input type="text" th:name="|${prefix}City|" size="55" maxlength="70" th:value="${contact.city}" />
+      </label>
+      <label>
+        <span th:text="#{account.state}">State/Province</span>
+        <select th:name="|${prefix}State|">
+          <option th:each="state : ${states}" th:value="${state}" th:text="${state}" th:selected="${state == contact.state}">California</option>
+        </select>
+      </label>
+      <label>
+        <span th:text="#{checkout.zipCode}">Zip Code</span>
+        <input type="text" th:name="|${prefix}PostalCode|" size="12" maxlength="12" th:value="${contact.postalCode}" />
+      </label>
+      <label>
+        <span th:text="#{account.country}">Country</span>
+        <select th:name="|${prefix}Country|">
+          <option th:each="country : ${countries}" th:value="${country}" th:text="${#messages.msgOrNull('account.country.' + country) ?: country}" th:selected="${country == contact.country}">United States</option>
+        </select>
+      </label>
+      <label>
+        <span th:text="#{checkout.telephone}">Telephone</span>
+        <input type="text" th:name="|${prefix}Telephone|" size="12" maxlength="70" th:value="${contact.telephone}" />
+      </label>
+      <label>
+        <span th:text="#{account.email}">E-Mail</span>
+        <input type="text" th:name="|${prefix}Email|" size="12" maxlength="70" th:value="${contact.email}" />
+      </label>
+    </th:block>
+  </body>
+</html>

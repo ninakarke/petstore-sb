@@ -46,6 +46,9 @@
             <td class="cart-number cart-sum" th:text="${#numbers.formatCurrency(cart.subTotal())}">$16.50</td>
           </tr>
         </table>
+        <p class="cart-checkout">
+          <a th:href="@{/checkout}" href="/checkout" th:text="#{cart.checkout}">Check Out</a>
+        </p>
       </th:block>
     </main>
   </body>

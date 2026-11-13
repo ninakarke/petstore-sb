@@ -40,6 +40,9 @@ class LegacyUrlRedirectController {
           screen("customer", "/account"),
           screen("update_customer", "/account/edit"),
           screen("create_customer", "/account/new"),
+          screen("enter_order_information", "/checkout"),
+          screen("order_complete", "/"),
+          screen("cart_empty_order_error", "/cart"),
           Map.entry(
               "category",
               parameters ->

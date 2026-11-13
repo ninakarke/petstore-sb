@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<!--/* Legacy equivalent: the "cart_empty_order_error" screen (cart_empty_order_error.jsp). */-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{order.empty.title}">Cart Empty Error</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:text="#{order.empty.heading}">Order Error</h1>
+      <p th:text="#{order.empty.text}">The Shopping Cart is Empty and the order could not be placed.</p>
+      <p th:text="#{order.empty.resubmit}">
+        You may have arrived at this page as a result of re-submitting the same order.
+      </p>
+    </main>
+  </body>
+</html>

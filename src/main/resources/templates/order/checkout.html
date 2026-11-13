@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!--/*
+  Legacy equivalent: the "enter_order_information" screen
+  (enter_order_information.jsp): billing and shipping details, both prefilled
+  from the account. Required fields are now checked on the server and reported
+  here; the legacy page checked them with JavaScript only.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{checkout.title}">Enter Order Information</title>
+  </head>
+  <body>
+    <main>
+      <div class="message message-error" th:if="${problems != null}" role="alert">
+        <strong th:text="#{account.problem.heading}">Please complete the following:</strong>
+        <ul>
+          <li th:each="field : ${problems.billTo}">
+            <span th:text="#{checkout.billing}">Billing Information</span>: <span th:text="#{|account.field.${field}|}">City</span>
+          </li>
+          <li th:each="field : ${problems.shipTo}">
+            <span th:text="#{checkout.shipping}">Shipping Information</span>: <span th:text="#{|account.field.${field}|}">City</span>
+          </li>
+        </ul>
+      </div>
+
+      <form class="form form-wide" th:action="@{/orders}" action="/orders" method="post">
+        <h1 th:text="#{checkout.billing}">Billing Information</h1>
+        <th:block th:replace="~{order/contact-block :: fields('bill', ${billTo})}"></th:block>
+
+        <h1 th:text="#{checkout.shipping}">Shipping Information</h1>
+        <th:block th:replace="~{order/contact-block :: fields('ship', ${shipTo})}"></th:block>
+
+        <button type="submit" th:text="#{account.submit}">Submit</button>
+      </form>
+    </main>
+  </body>
+</html>
