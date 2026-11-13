@@ -13,7 +13,7 @@ It runs from one build on three data stores, chosen when it starts:
 | **MongoDB** | The stretch goal: a document model, not the tables copied one to one |
 
 The legacy storefront had 194 Java files (22,054 lines), 67 JSPs and no automated tests. The
-migrated application has 704 tests, which run against all three data stores, and a job that copies
+migrated application has 705 tests, which run against all three data stores, and a job that copies
 existing relational data into MongoDB and checks that the two match.
 
 The migration was done the way it would be done on a codebase a hundred times this size: measured
@@ -30,6 +30,7 @@ That method is described in [How the migration was approached](#how-the-migratio
 - [What was migrated](#what-was-migrated)
 - [How the migration was approached](#how-the-migration-was-approached)
 - [How correctness is shown](#how-correctness-is-shown)
+- [Defects found along the way](#defects-found-along-the-way)
 - [Before and after: four components](#before-and-after-four-components)
 - [MongoDB](#mongodb)
 - [Differences from the legacy application](#differences-from-the-legacy-application)
@@ -144,15 +145,15 @@ That one command is the whole quality gate, locally and in CI. It fails if any o
 | Gate | Tool | Fails the build when |
 | --- | --- | --- |
 | Toolchain | Maven Enforcer | Java is older than 21, or a legacy `javax.*` enterprise API is on the classpath |
-| Tests | JUnit 5, Testcontainers | any of the 704 tests fails |
+| Tests | JUnit 5, Testcontainers | any of the 705 tests fails |
 | Module boundaries | Spring Modulith | a module uses another module's internals, or there is a dependency cycle |
 | Architecture rules | ArchUnit | for example: database technology used outside a persistence adapter |
 | Coverage | JaCoCo | line coverage is below 80 % (it is 98.6 %; branches 90.1 %) |
 | Formatting | Spotless (google-java-format) | a file is not formatted (`./mvnw spotless:apply` fixes it) |
 
 **Docker and the tests.** The tests that need a real PostgreSQL or MongoDB server start one
-themselves in a container (images `postgres:18` and `mongo:8`). With Docker running, all 704 tests
-run. Without Docker those tests are skipped, 531 tests run, coverage is 82.4 % and the build still
+themselves in a container (images `postgres:18` and `mongo:8`). With Docker running, all 705 tests
+run. Without Docker those tests are skipped, 532 tests run, coverage is 82.4 % and the build still
 passes.
 
 Useful while working:
@@ -314,7 +315,7 @@ com.petstore.<module>.internal.api        JSON endpoints
 | Tests | none | JUnit 5, AssertJ, Testcontainers, ArchUnit |
 
 The resulting code: 147 source files and about 8,000 lines of application code, and about 9,600
-lines of tests in 86 test classes.
+lines of tests in 87 test classes.
 
 ## How the migration was approached
 
@@ -428,6 +429,38 @@ equal the same reference over the full catalog; the same journeys pass on both.
 **What is not proven.** There is no recording of the running legacy application to compare pages
 with, so page layout and wording were ported by reading the JSPs, not checked against a golden
 master. On a larger migration it would be worth containerising the old runtime once to capture one.
+
+## Defects found along the way
+
+The defects of the legacy application are listed under
+[Differences from the legacy application](#differences-from-the-legacy-application). These are the
+defects in the **migrated** code, and in its own tests, that turned up during the work, with how
+each was caught. They show which parts of the safety net did the catching, and one that got past
+all of it.
+
+### In the application
+
+| What went wrong | How it was caught | What changed | Guarded by |
+| --- | --- | --- | --- |
+| **An empty category list was cached at start-up.** The application answers requests a fraction of a second before its seed data is loaded. A request in that gap cached an empty list, and the sidebar, the categories endpoint and the favourite category on the account page stayed empty for the five minutes a cache entry lives. | By hand, using the running application before release. It got past every automated test, because none made a request that early. | An empty list is never cached. | `CatalogCachingBeforeSeedTests`, which puts the application in that moment on purpose and fails without the fix |
+| **Catalog pages could differ between databases.** Lists are ordered by name and paged; PostgreSQL orders text by language rules, H2 by code point. | The shared contract suite, run on a real PostgreSQL server | The comparison is pinned in the schema | `CatalogStoreContract.namesAreOrderedByCodePointOnEveryStore`, on every store |
+| **A database-specific exception escaped from the order store** when a user's idempotency key was used a second time, where the port promises a store-neutral one. Recognising a repeated request depends on it. | The order store's contract suite | The adapter reports the store-neutral exception | `OrderStoreContract.idempotencyKeyIsUniquePerUser` |
+| **An over-long e-mail address was reported as a problem with the telephone number.** | A test of values too long to be stored | The e-mail address is a field of its own in the validation result | `CustomerServiceTests.valuesThatWouldNotFitAreRefused` |
+| **Notes written in the page templates were sent to browsers** as HTML comments. | Reading the page source served over HTTP at the end of the first stage | Notes are written as comments that never leave the server | `StorefrontShellTests.notesInTemplatesAreNotSentToTheBrowser` |
+| **An order's time could not have been read back identically from every store.** It was kept to the microsecond, and a MongoDB date holds milliseconds. | Noticed while the MongoDB adapter was being designed, before any test failed | Times are kept to the millisecond on every store | `OrderStoreContract.timesKeepTheirMilliseconds` |
+
+### In the tests and the build
+
+| What went wrong | How it was caught | What changed |
+| --- | --- | --- |
+| **Tests gave different results on one machine.** With the original pictures present in the local folder, a page rendered differently than on a clean checkout. | A page test failing only where the pictures were | Tests never look in the local picture folder; the tests about pictures use a temporary one |
+| **Data leaked from one persistence test into the next.** Test methods inherited from a shared contract class ran without the test transaction that was expected to roll them back. | Contract tests failing on rows left behind by earlier tests | Each contract empties its store before every test, and every adapter call runs in its own transaction, as it does in the running application |
+| **A whole-journey test failed on one database only.** It was not a database difference: the test had generated a user name longer than the legacy limit of 25 characters. | The journey suite on PostgreSQL | The test uses a short name. The rule it ran into is the legacy one, working. |
+| **Coverage was overstated by a build that was not clean.** Results of earlier runs were still counted, so code whose tests had been skipped showed as covered. | A build without the MongoDB tests reporting the MongoDB adapters as fully covered | The figures in this document come from clean builds, and CI always builds clean |
+
+The first row of the first table is the one to remember. Seven hundred tests were green and the
+defect was real; it was found by starting the application and using it. That is why "use the
+running application" is a step of every slice and is not replaced by the tests.
 
 ## Before and after: four components
 
@@ -788,11 +821,6 @@ All defaults are in [application.yml](src/main/resources/application.yml); the p
 **History.** One branch, small commits, each made when a step was finished and the build was green,
 and one tag per stage (see [Breaking the work up](#breaking-the-work-up)). `git log --oneline`
 reads as the order in which the work was done.
-
-**How it was built.** The challenge explicitly allows AI assistance, and it was used throughout;
-the commit trailers say so. The decisions listed above were taken by the author from options with
-their trade-offs, and nothing in this document asks to be taken on trust: every claim of "same
-behaviour" points at a test that can be run.
 
 **Legacy inventory.** To regenerate the numbers quoted here:
 `tools/legacy-inventory.sh <path to the petstore1.3.1_02 distribution>`.
