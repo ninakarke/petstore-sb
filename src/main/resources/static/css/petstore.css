@@ -233,3 +233,54 @@ a {
 .cart-sum {
   background: #ccccff;
 }
+
+.banner-signout {
+  display: inline;
+  margin: 0;
+}
+
+.form-section {
+  margin: 0 0 1.5rem;
+}
+
+.form-section h2 {
+  font-size: 0.95rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 22rem;
+  font-size: 0.8rem;
+}
+
+.form label {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form .form-check {
+  grid-template-columns: max-content 1fr;
+}
+
+.form button {
+  justify-self: start;
+}
+
+.message {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid;
+  font-size: 0.8rem;
+}
+
+.message-error {
+  border-color: #b00020;
+  color: #b00020;
+}
+
+.message strong {
+  display: block;
+}

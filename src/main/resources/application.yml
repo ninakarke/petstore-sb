@@ -24,6 +24,15 @@ spring:
       spec: maximumSize=200,expireAfterWrite=300s
 
 petstore:
+  security:
+    # Pages that require a signed-in customer; everything else is public.
+    # Legacy: the <constraint> entries of WEB-INF/signon-config.xml (the
+    # account pages and the order form). The legacy list did not include
+    # the URL that actually placed the order; this one does.
+    protected-paths:
+      - /account/**
+      - /checkout/**
+      - /orders/**
   catalog:
     # Results per page on the category, product and search pages (legacy: 2).
     page-size: 2

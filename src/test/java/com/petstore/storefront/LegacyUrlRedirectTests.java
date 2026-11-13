@@ -51,6 +51,13 @@ class LegacyUrlRedirectTests {
           /cart.do?action=purchase&itemId=EST-1                 | /items/EST-1
           /cart.do?action=remove&itemId=EST-1                   | /cart
           /cart.do?action=update&itemQuantity_EST-1=9           | /cart
+          /signon.screen                                        | /signin
+          /signon_welcome.screen                                | /signin
+          /petstore/signon_welcome.screen                       | /signin
+          /signon_error.screen                                  | /signin?error
+          /duplicate_account.screen                             | /signin
+          /signoff.screen                                       | /signedout
+          /signoff.do                                           | /
           """)
   @DisplayName("legacy address is permanently redirected to its replacement")
   void legacyAddressIsRedirected(String legacy, String replacement) {

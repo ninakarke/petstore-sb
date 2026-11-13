@@ -29,28 +29,43 @@ class LegacyUrlRedirectController {
 
   /** Legacy screen name to the address of its replacement, computed from the query parameters. */
   private static final Map<String, Function<Map<String, String>, Optional<URI>>> SCREENS =
-      Map.of(
-          "main", parameters -> Optional.of(URI.create("/")),
-          "cart", parameters -> Optional.of(URI.create("/cart")),
-          "category",
+      Map.ofEntries(
+          screen("main", "/"),
+          screen("cart", "/cart"),
+          screen("signon", "/signin"),
+          screen("signon_welcome", "/signin"),
+          screen("signon_error", "/signin?error"),
+          screen("duplicate_account", "/signin"),
+          screen("signoff", "/signedout"),
+          Map.entry(
+              "category",
               parameters ->
                   subject(parameters, "category_id")
-                      .map(id -> paged("/categories/{id}", id, parameters)),
-          "product",
+                      .map(id -> paged("/categories/{id}", id, parameters))),
+          Map.entry(
+              "product",
               parameters ->
                   subject(parameters, "product_id")
-                      .map(id -> paged("/products/{id}", id, parameters)),
-          "item",
+                      .map(id -> paged("/products/{id}", id, parameters))),
+          Map.entry(
+              "item",
               parameters ->
                   subject(parameters, "item_id")
-                      .map(id -> UriComponentsBuilder.fromPath("/items/{id}").build(id)),
-          "search",
+                      .map(id -> UriComponentsBuilder.fromPath("/items/{id}").build(id))),
+          Map.entry(
+              "search",
               parameters -> {
                 UriComponentsBuilder target =
                     UriComponentsBuilder.fromPath("/search").queryParam("keywords", "{keywords}");
                 start(parameters).ifPresent(start -> target.queryParam("start", start));
                 return Optional.of(target.build(parameters.getOrDefault("keywords", "")));
-              });
+              }));
+
+  /** A legacy screen that is replaced by one fixed address. */
+  private static Map.Entry<String, Function<Map<String, String>, Optional<URI>>> screen(
+      String legacyName, String replacement) {
+    return Map.entry(legacyName, parameters -> Optional.of(URI.create(replacement)));
+  }
 
   @GetMapping({"/{screen}.screen", "/petstore/{screen}.screen"})
   ResponseEntity<Void> screen(
@@ -77,6 +92,16 @@ class LegacyUrlRedirectController {
       }
     }
     return movedPermanently(URI.create("/cart"));
+  }
+
+  /**
+   * The legacy sign-off link, {@code signoff.do}, signed the visitor out when it was fetched.
+   * Signing out now needs a POST from the page, so the link leads to the home page, where the "Sign
+   * out" button is.
+   */
+  @GetMapping({"/signoff.do", "/petstore/signoff.do"})
+  ResponseEntity<Void> signOff() {
+    return movedPermanently(URI.create("/"));
   }
 
   /** The legacy welcome file and the bare legacy context path. */

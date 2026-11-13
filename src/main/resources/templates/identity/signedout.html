@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<!--/* Legacy equivalent: the "signoff" screen (signoff.jsp). */-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{signedout.title}">Sign Off</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:text="#{signedout.heading}">You are signed out.</h1>
+      <p th:text="#{signedout.thanks}">Thank you for shopping.</p>
+      <p><a th:href="@{/signin}" href="/signin" th:text="#{signedout.again}">You may sign in again.</a></p>
+    </main>
+  </body>
+</html>

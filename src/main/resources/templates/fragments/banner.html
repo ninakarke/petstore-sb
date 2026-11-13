@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--/* Legacy equivalent: banner.jsp. Each slice adds its own entry to the banner. */-->
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
   <body>
     <header class="banner" th:fragment="banner">
       <a class="banner-logo" th:href="@{/}" href="/">
@@ -13,6 +13,10 @@
         </form>
         <nav class="banner-links">
           <a th:href="@{/cart}" href="/cart" th:text="#{banner.cart}">Cart</a>
+          <a sec:authorize="isAnonymous()" th:href="@{/signin}" href="/signin" th:text="#{banner.signin}">Sign in</a>
+          <form sec:authorize="isAuthenticated()" class="banner-signout" th:action="@{/signout}" action="/signout" method="post">
+            <button type="submit" class="link-button" th:text="#{banner.signout}">Sign out</button>
+          </form>
         </nav>
       </div>
     </header>

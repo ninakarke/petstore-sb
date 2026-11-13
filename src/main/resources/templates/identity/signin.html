@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--/*
+  Legacy equivalent: the "signon" screen (signon.jsp) with its two forms, plus
+  the "signon_error" and "duplicate_account" screens, whose messages are shown
+  here above the form they belong to.
+  The legacy page prefilled the demo user name and password; this one does not.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{signin.title}">Sign On</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:text="#{signin.heading}">Sign In</h1>
+
+      <section class="form-section">
+        <h2 th:text="#{signin.returning}">Are you a returning customer?</h2>
+        <div class="message message-error" th:if="${signInFailed}" role="alert">
+          <strong th:text="#{signin.error.heading}">Sign-in Error</strong>
+          <span th:text="#{signin.error.text}">The user name and password you entered were not found in our records. Please try again.</span>
+        </div>
+        <form class="form" th:action="@{/signin}" action="/signin" method="post">
+          <p><b th:text="#{signin.yes}">Yes.</b></p>
+          <label>
+            <span th:text="#{signin.username}">User Name:</span>
+            <input type="text" name="j_username" size="15" maxlength="25" required th:value="${rememberedUsername}" autocomplete="username" />
+          </label>
+          <label>
+            <span th:text="#{signin.password}">Password:</span>
+            <input type="password" name="j_password" size="15" maxlength="25" required autocomplete="current-password" />
+          </label>
+          <label class="form-check">
+            <input type="checkbox" name="j_remember_username" th:checked="${!#strings.isEmpty(rememberedUsername)}" />
+            <span th:text="#{signin.remember}">Remember My User Name</span>
+          </label>
+          <button type="submit" th:text="#{signin.submit}">Sign In</button>
+        </form>
+      </section>
+
+      <section class="form-section">
+        <div class="message message-error" th:if="${registrationProblem != null}" role="alert">
+          <strong th:text="#{register.error.heading}">User Creation Error!</strong>
+          <span th:text="#{|register.problem.${registrationProblem}|}">The User name you have chosen is in use.</span>
+        </div>
+        <form class="form" th:action="@{/register}" action="/register" method="post">
+          <p><b th:text="#{register.no}">No. I would like to sign up for an account.</b></p>
+          <label>
+            <span th:text="#{signin.username}">User Name:</span>
+            <input type="text" name="j_username" size="15" maxlength="25" required th:value="${attemptedUsername}" autocomplete="username" />
+          </label>
+          <label>
+            <span th:text="#{signin.password}">Password:</span>
+            <input type="password" name="j_password" size="15" maxlength="25" required autocomplete="new-password" />
+          </label>
+          <label>
+            <span th:text="#{register.repeat}">Password (Repeat):</span>
+            <input type="password" name="j_password_2" size="15" maxlength="25" required autocomplete="new-password" />
+          </label>
+          <button type="submit" th:text="#{register.submit}">Create New Account</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
