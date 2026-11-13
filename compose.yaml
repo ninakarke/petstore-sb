@@ -1,9 +1,15 @@
 # The Docker-backed run modes.
 #
-#   docker compose up -d postgres            PostgreSQL only; run the application
-#                                            yourself with the "postgres" profile
-#   docker compose --profile app up --build  PostgreSQL and the application, both
-#                                            in containers, on http://localhost:8080
+# A database only; run the application yourself with the matching profile:
+#
+#   docker compose up -d postgres            then profile "postgres"
+#   docker compose up -d mongo               then profile "mongo"
+#
+# A database and the application, both in containers, on http://localhost:8080
+# (one at a time, they use the same port):
+#
+#   docker compose --profile app up --build          with PostgreSQL
+#   docker compose --profile app-mongo up --build    with MongoDB
 #
 # The default run mode needs none of this: it uses an embedded database.
 # Credentials here are for local development only.
@@ -25,8 +31,24 @@ services:
       timeout: 3s
       retries: 10
 
-  # The application itself, built from the Dockerfile. Only started when the
-  # "app" profile is asked for, so `docker compose up -d postgres` stays as it is.
+  # A single MongoDB server, no replica set: the application needs no
+  # multi-document transactions.
+  mongo:
+    image: mongo:8
+    ports:
+      - "27017:27017"
+    volumes:
+      - petstore-mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # The application itself, built from the Dockerfile, once per data store.
+  # Each is only started when its profile is asked for, so
+  # `docker compose up -d postgres` and `docker compose up -d mongo` stay as
+  # they are.
   app:
     profiles: ["app"]
     build: .
@@ -36,12 +58,27 @@ services:
       PETSTORE_DB_URL: jdbc:postgresql://postgres:5432/petstore
     ports:
       - "8080:8080"
-    volumes:
+    volumes: &pictures
       # Optional original pet pictures; placeholders are shown without them.
       - ./local/legacy-images:/app/local/legacy-images:ro
     depends_on:
       postgres:
         condition: service_healthy
 
+  app-mongo:
+    profiles: ["app-mongo"]
+    build: .
+    image: petstore:local
+    environment:
+      SPRING_PROFILES_ACTIVE: mongo
+      PETSTORE_MONGODB_URI: mongodb://mongo:27017/petstore
+    ports:
+      - "8080:8080"
+    volumes: *pictures
+    depends_on:
+      mongo:
+        condition: service_healthy
+
 volumes:
   petstore-postgres:
+  petstore-mongo:
