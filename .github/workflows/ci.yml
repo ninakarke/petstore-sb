@@ -45,3 +45,14 @@ jobs:
             target/surefire-reports
             target/site/jacoco
             target/spring-modulith-docs
+
+  image:
+    name: Container image builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Build image
+        run: docker build --tag petstore:ci .

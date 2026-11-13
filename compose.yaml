@@ -1,6 +1,9 @@
-# Backing services for the Docker-backed run modes.
+# The Docker-backed run modes.
 #
-#   docker compose up -d postgres     then run with the "postgres" profile
+#   docker compose up -d postgres            PostgreSQL only; run the application
+#                                            yourself with the "postgres" profile
+#   docker compose --profile app up --build  PostgreSQL and the application, both
+#                                            in containers, on http://localhost:8080
 #
 # The default run mode needs none of this: it uses an embedded database.
 # Credentials here are for local development only.
@@ -21,6 +24,24 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # The application itself, built from the Dockerfile. Only started when the
+  # "app" profile is asked for, so `docker compose up -d postgres` stays as it is.
+  app:
+    profiles: ["app"]
+    build: .
+    image: petstore:local
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      PETSTORE_DB_URL: jdbc:postgresql://postgres:5432/petstore
+    ports:
+      - "8080:8080"
+    volumes:
+      # Optional original pet pictures; placeholders are shown without them.
+      - ./local/legacy-images:/app/local/legacy-images:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   petstore-postgres:

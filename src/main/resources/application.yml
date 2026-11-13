@@ -30,7 +30,7 @@ spring:
   cache:
     cache-names: catalog.categories
     caffeine:
-      spec: maximumSize=200,expireAfterWrite=300s
+      spec: maximumSize=200,expireAfterWrite=300s,recordStats
 
 petstore:
   security:

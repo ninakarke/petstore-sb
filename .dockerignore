@@ -1,0 +1,20 @@
+# Only the build files and the source go into the image build.
+
+# Local-only assets. The legacy pet images may not be redistributed (see
+# NOTICE), so they must never end up inside an image; they are mounted at
+# run time instead (see compose.yaml).
+local/
+
+target/
+.git/
+.github/
+.idea/
+.vscode/
+tools/
+*.md
+*.log
+.env
+.env.*
+compose.yaml
+Dockerfile
+.dockerignore
