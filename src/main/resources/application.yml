@@ -30,6 +30,12 @@ petstore:
     # Upper limit for a page size requested through the API.
     max-page-size: 50
 
+# The generated API description covers the JSON endpoints only, not the pages.
+springdoc:
+  paths-to-match: /api/**
+  swagger-ui:
+    path: /swagger-ui.html
+
 server:
   port: 8080
 
