@@ -16,6 +16,20 @@ spring:
       # does that already. See application-postgres.yml.
       binaryCollation: ""
 
+  # Catalog reads are cached for five minutes, as the legacy pages were, but
+  # in a cache with a size limit. The legacy cache tag never removed an entry.
+  cache:
+    cache-names: catalog.categories
+    caffeine:
+      spec: maximumSize=200,expireAfterWrite=300s
+
+petstore:
+  catalog:
+    # Results per page on the category, product and search pages (legacy: 2).
+    page-size: 2
+    # Upper limit for a page size requested through the API.
+    max-page-size: 50
+
 server:
   port: 8080
 
