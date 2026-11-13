@@ -52,7 +52,7 @@ public class OrderHandoffRelay {
    */
   public Handoff deliver(Order order) {
     int attempts = order.handoff().attempts() + 1;
-    Instant now = clock.instant().truncatedTo(ChronoUnit.MICROS);
+    Instant now = clock.instant().truncatedTo(ChronoUnit.MILLIS);
     Handoff outcome;
     try {
       publisher.publish(order);

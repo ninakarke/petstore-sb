@@ -51,6 +51,20 @@ public abstract class OrderStoreContract {
   }
 
   @Test
+  @DisplayName("times keep their milliseconds on every store")
+  void timesKeepTheirMilliseconds() {
+    Order order = OrderFixtures.order("10011", "j2ee", NOON.plusMillis(123));
+    Handoff attempted = new Handoff(HandoffStatus.PENDING, 1, NOON.plusMillis(456));
+
+    store().save(order);
+    store().updateHandoff("10011", attempted);
+
+    Order stored = store().find("10011").orElseThrow();
+    assertThat(stored.placedAt()).isEqualTo(NOON.plusMillis(123));
+    assertThat(stored.handoff().lastAttemptAt()).isEqualTo(NOON.plusMillis(456));
+  }
+
+  @Test
   @DisplayName("legacy: lines are numbered from zero and keep that order")
   void linesKeepTheirOrder() {
     store().save(OrderFixtures.order("10011", "j2ee", NOON));

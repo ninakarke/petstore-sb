@@ -215,7 +215,8 @@ public class OrderService {
             orderIds.nextOrderId(),
             userId,
             billing.email() != null ? billing.email() : accountContact.email(),
-            clock.instant().truncatedTo(ChronoUnit.MICROS),
+            // Milliseconds: the finest precision every supported data store keeps.
+            clock.instant().truncatedTo(ChronoUnit.MILLIS),
             shipping,
             billing,
             customer.account().creditCard(),
