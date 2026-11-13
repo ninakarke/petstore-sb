@@ -24,8 +24,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 class SignInController {
 
-  /** Where a newly registered user is sent to. */
-  static final String AFTER_REGISTRATION = "/";
+  /**
+   * Where a newly registered user is sent to: the page for entering their account details, as in
+   * the legacy flow from {@code createuser.do} to the {@code create_customer} screen.
+   */
+  static final String AFTER_REGISTRATION = "/account/new";
 
   private final IdentityService identity;
   private final SignInSupport signInSupport;

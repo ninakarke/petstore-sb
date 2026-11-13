@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<!--/*
+  Legacy equivalents: the "create_customer" screen (create_customer.jsp) and the
+  "update_customer" screen (edit_customer.jsp). One template serves both.
+  Differences from the legacy pages: the form is not prefilled with demo data,
+  required fields are checked on the server and reported here, the stored card
+  number is never sent back to the browser, and there is no language choice.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="${creating} ? #{account.title.create} : #{account.title.update}">Create Customer</title>
+  </head>
+  <body>
+    <main>
+      <h1 th:text="#{account.heading}">Your Account Information</h1>
+
+      <div class="message message-error" th:if="${!invalidFields.isEmpty()}" role="alert">
+        <strong th:text="#{account.problem.heading}">Please complete the following:</strong>
+        <ul>
+          <li th:each="field : ${invalidFields}" th:text="#{|account.field.${field}|}">First Name</li>
+        </ul>
+      </div>
+
+      <form class="form form-wide" th:action="${creating} ? @{/account/new} : @{/account}" action="/account" method="post">
+        <h2 th:text="#{account.section.contact}">Contact Information</h2>
+        <label>
+          <span th:text="#{account.givenName}">First Name</span>
+          <input type="text" name="givenName" size="30" maxlength="30" th:value="${form.givenName}" autocomplete="given-name" />
+        </label>
+        <label>
+          <span th:text="#{account.familyName}">Last Name</span>
+          <input type="text" name="familyName" size="30" maxlength="30" th:value="${form.familyName}" autocomplete="family-name" />
+        </label>
+        <label>
+          <span th:text="#{account.address}">Street Address</span>
+          <input type="text" name="address1" size="55" maxlength="70" th:value="${form.address1}" autocomplete="address-line1" />
+        </label>
+        <label>
+          <span></span>
+          <input type="text" name="address2" size="55" maxlength="70" th:value="${form.address2}" th:attr="aria-label=#{account.address2}" autocomplete="address-line2" />
+        </label>
+        <label>
+          <span th:text="#{account.city}">City</span>
+          <input type="text" name="city" size="55" maxlength="70" th:value="${form.city}" autocomplete="address-level2" />
+        </label>
+        <label>
+          <span th:text="#{account.state}">State/Province</span>
+          <select name="state">
+            <option th:each="state : ${options.states}" th:value="${state}" th:text="${state}" th:selected="${state == form.state}">California</option>
+          </select>
+        </label>
+        <label>
+          <span th:text="#{account.postalCode}">Postal Code</span>
+          <input type="text" name="postalCode" size="12" maxlength="12" th:value="${form.postalCode}" autocomplete="postal-code" />
+        </label>
+        <label>
+          <span th:text="#{account.country}">Country</span>
+          <select name="country">
+            <option th:each="country : ${options.countries}" th:value="${country}" th:text="${#messages.msgOrNull('account.country.' + country) ?: country}" th:selected="${country == form.country}">United States</option>
+          </select>
+        </label>
+        <label>
+          <span th:text="#{account.telephone}">Telephone Number</span>
+          <input type="text" name="telephone" size="12" maxlength="70" th:value="${form.telephone}" autocomplete="tel" />
+        </label>
+        <label>
+          <span th:text="#{account.email}">E-Mail</span>
+          <input type="text" name="email" size="12" maxlength="70" th:value="${form.email}" autocomplete="email" />
+        </label>
+
+        <h2 th:text="#{account.section.card}">Credit Card Information</h2>
+        <label>
+          <span th:text="#{account.cardNumber}">Credit Card Number</span>
+          <input type="text" name="cardNumber" size="30" maxlength="30" th:value="${form.cardNumber}" th:placeholder="${storedCardNumber}" autocomplete="off" />
+        </label>
+        <p class="form-hint" th:if="${!creating}" th:text="#{account.cardNumber.keep}">Leave empty to keep the card on file.</p>
+        <label>
+          <span th:text="#{account.cardType}">Card Type</span>
+          <select name="cardType">
+            <option th:each="type : ${options.cardTypes}" th:value="${type}" th:text="${type}" th:selected="${type == form.cardType}">Duke Express</option>
+          </select>
+        </label>
+        <label>
+          <span th:text="#{account.cardExpiry}">Expiry Date</span>
+          <span class="form-pair">
+            <select name="expiryMonth" th:attr="aria-label=#{account.cardExpiry.month}">
+              <option th:each="month : ${options.months}" th:value="${month}" th:text="${month}" th:selected="${month == form.expiryMonth}">01</option>
+            </select>
+            <select name="expiryYear" th:attr="aria-label=#{account.cardExpiry.year}">
+              <option th:each="year : ${options.years}" th:value="${year}" th:text="${year}" th:selected="${year == form.expiryYear}">2030</option>
+            </select>
+          </span>
+        </label>
+
+        <h2 th:text="#{account.section.profile}">Profile Information</h2>
+        <label>
+          <span th:text="#{account.favoriteCategory}">My favorite category is</span>
+          <select name="favoriteCategory">
+            <option th:each="category : ${sidebarCategories}" th:value="${category.id}" th:text="${category.name}" th:selected="${category.id == form.favoriteCategory}">Birds</option>
+          </select>
+        </label>
+        <label class="form-check">
+          <input type="checkbox" name="myList" th:checked="${form.myList}" />
+          <span>
+            <span th:text="#{account.myList}">Yes, I want to enable the MyList feature.</span>
+            <i th:text="#{account.myList.hint}">MyList makes your favorite items and categories more prominent as you shop.</i>
+          </span>
+        </label>
+        <label class="form-check">
+          <input type="checkbox" name="banners" th:checked="${form.banners}" />
+          <span>
+            <span th:text="#{account.banners}">Yes, I want to enable the pet tips banners.</span>
+            <i th:text="#{account.banners.hint}">Java Pet Store will display pet tips as you shop, which are based on your favorite items and categories.</i>
+          </span>
+        </label>
+
+        <button type="submit" th:text="#{account.submit}">Submit</button>
+      </form>
+    </main>
+  </body>
+</html>

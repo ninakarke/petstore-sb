@@ -12,6 +12,7 @@
           <button type="submit" th:text="#{banner.search}">Search</button>
         </form>
         <nav class="banner-links">
+          <a th:href="@{/account}" href="/account" th:text="#{banner.account}">Account</a>
           <a th:href="@{/cart}" href="/cart" th:text="#{banner.cart}">Cart</a>
           <a sec:authorize="isAnonymous()" th:href="@{/signin}" href="/signin" th:text="#{banner.signin}">Sign in</a>
           <form sec:authorize="isAuthenticated()" class="banner-signout" th:action="@{/signout}" action="/signout" method="post">

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!--/*
+  Legacy equivalent: the "customer" screen (customer.jsp).
+  The legacy page displayed the full card number; this one shows only its last
+  four characters.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: page(~{::title}, ~{::main})}" lang="en">
+  <head>
+    <title th:text="#{account.title.view}">Customer</title>
+  </head>
+  <body>
+    <main th:with="contact=${customer.account.contactInfo}, address=${customer.account.contactInfo.address}, card=${customer.account.creditCard}, profile=${customer.profile}">
+      <h1 th:text="#{account.heading}">Your Account Information</h1>
+
+      <section class="details-section">
+        <h2 th:text="#{account.section.contact}">Contact Information</h2>
+        <dl class="details">
+          <dt th:text="#{account.givenName}">First Name</dt>
+          <dd th:text="${contact.givenName}">Duke</dd>
+          <dt th:text="#{account.familyName}">Last Name</dt>
+          <dd th:text="${contact.familyName}">BluesPrints</dd>
+          <dt th:text="#{account.address}">Street Address</dt>
+          <dd>
+            <span th:text="${address.streetName1}">1234 Moon Way</span>
+            <th:block th:if="${address.streetName2 != null}"><br /><span th:text="${address.streetName2}">Unit 5</span></th:block>
+          </dd>
+          <dt th:text="#{account.city}">City</dt>
+          <dd th:text="${address.city}">Sunville</dd>
+          <dt th:text="#{account.state}">State/Province</dt>
+          <dd th:text="${address.state}">California</dd>
+          <dt th:text="#{account.postalCode}">Postal Code</dt>
+          <dd th:text="${address.zipCode}">10001</dd>
+          <dt th:text="#{account.country}">Country</dt>
+          <dd th:text="${address.country}">USA</dd>
+          <dt th:text="#{account.telephone}">Telephone Number</dt>
+          <dd th:text="${contact.telephone}">408-555-5555</dd>
+          <dt th:text="#{account.email}">E-Mail</dt>
+          <dd th:text="${contact.email}">duke@example.com</dd>
+        </dl>
+      </section>
+
+      <section class="details-section">
+        <h2 th:text="#{account.section.card}">Credit Card Information</h2>
+        <dl class="details">
+          <dt th:text="#{account.cardType}">Card Type</dt>
+          <dd th:text="${card.cardType}">Duke Express</dd>
+          <dt th:text="#{account.cardNumber.view}">Card Number</dt>
+          <dd th:text="${card.maskedNumber()}">*********0001</dd>
+          <dt th:text="#{account.cardExpiry.view}">Card Expiry Date</dt>
+          <dd><span th:text="${card.expiryMonth()}">10</span> / <span th:text="${card.expiryYear()}">2030</span></dd>
+        </dl>
+      </section>
+
+      <section class="details-section">
+        <h2 th:text="#{account.section.profile}">Profile Information</h2>
+        <p>
+          <span th:text="#{account.favoriteCategory}">My favorite category is</span>
+          <b th:each="category : ${sidebarCategories}" th:if="${category.id == profile.favoriteCategory}" th:text="${category.name}">Dogs</b>
+        </p>
+        <p>
+          <b th:text="${profile.myListPreference} ? #{account.yes} : #{account.no}">Yes</b>
+          <span th:text="#{account.myList.view}">I want to enable the MyList feature.</span>
+          <i th:text="#{account.myList.hint}">MyList makes your favorite items and categories more prominent as you shop.</i>
+        </p>
+        <p>
+          <b th:text="${profile.bannerPreference} ? #{account.yes} : #{account.no}">Yes</b>
+          <span th:text="#{account.banners.view}">I want to enable the Pet Tips banners.</span>
+          <i th:text="#{account.banners.hint}">Java Pet Store will display pet tips as you shop, which are based on your favorite items and categories.</i>
+        </p>
+      </section>
+
+      <p><a th:href="@{/account/edit}" href="/account/edit" th:text="#{account.edit}">Edit Your Account Information</a></p>
+    </main>
+  </body>
+</html>

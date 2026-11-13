@@ -58,6 +58,10 @@ class LegacyUrlRedirectTests {
           /duplicate_account.screen                             | /signin
           /signoff.screen                                       | /signedout
           /signoff.do                                           | /
+          /customer.screen                                      | /account
+          /customer.do                                          | /account
+          /update_customer.screen                               | /account/edit
+          /create_customer.screen                               | /account/new
           """)
   @DisplayName("legacy address is permanently redirected to its replacement")
   void legacyAddressIsRedirected(String legacy, String replacement) {

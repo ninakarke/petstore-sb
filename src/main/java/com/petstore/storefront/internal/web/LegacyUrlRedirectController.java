@@ -37,6 +37,9 @@ class LegacyUrlRedirectController {
           screen("signon_error", "/signin?error"),
           screen("duplicate_account", "/signin"),
           screen("signoff", "/signedout"),
+          screen("customer", "/account"),
+          screen("update_customer", "/account/edit"),
+          screen("create_customer", "/account/new"),
           Map.entry(
               "category",
               parameters ->
@@ -102,6 +105,12 @@ class LegacyUrlRedirectController {
   @GetMapping({"/signoff.do", "/petstore/signoff.do"})
   ResponseEntity<Void> signOff() {
     return movedPermanently(URI.create("/"));
+  }
+
+  /** The legacy account link, {@code customer.do}. Changing the account needs the form. */
+  @GetMapping({"/customer.do", "/petstore/customer.do"})
+  ResponseEntity<Void> account() {
+    return movedPermanently(URI.create("/account"));
   }
 
   /** The legacy welcome file and the bare legacy context path. */
