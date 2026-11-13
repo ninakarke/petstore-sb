@@ -11,8 +11,9 @@ spring:
       ddl-auto: validate
   flyway:
     placeholders:
-      # Appended to text columns that are sorted on. Empty for H2, which
-      # compares strings by code point already. See application-postgres.yml.
+      # Appended to the text columns that lists are sorted on, to make every
+      # database order them the same way (by code point). Empty for H2, which
+      # does that already. See application-postgres.yml.
       binaryCollation: ""
 
 server:

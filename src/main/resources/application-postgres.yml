@@ -1,0 +1,20 @@
+# Profile "postgres": run against PostgreSQL instead of the embedded database.
+#
+#   docker compose up -d postgres
+#   ./mvnw spring-boot:run -Dspring-boot.run.profiles=postgres
+#
+# The defaults match compose.yaml. Override them with environment variables
+# to point at another server.
+
+spring:
+  datasource:
+    url: ${PETSTORE_DB_URL:jdbc:postgresql://localhost:5432/petstore}
+    username: ${PETSTORE_DB_USER:petstore}
+    password: ${PETSTORE_DB_PASSWORD:petstore}
+  flyway:
+    placeholders:
+      # PostgreSQL sorts text by the database's language rules unless told
+      # otherwise. Lists are ordered by name and paged, so the order decides
+      # which page a product is on. Pin it to code-point order, the same as on
+      # the other supported databases.
+      binaryCollation: collate "C"

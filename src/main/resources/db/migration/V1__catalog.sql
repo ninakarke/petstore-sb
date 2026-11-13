@@ -8,10 +8,11 @@
 --   * varchar instead of fixed-width char for ids and locale. The legacy
 --     code had to trim() every id it read because of the padding.
 --   * indexes on the foreign keys used to list products and items.
---   * ${binaryCollation} on the name columns. The legacy database compared
---     strings by code point; a database with a language-aware default
---     collation would order names differently and change the page a product
---     appears on. The placeholder pins the legacy ordering where needed.
+--   * ${binaryCollation} on the name columns. Lists are ordered by name and
+--     paged, so the page a product appears on depends on how the database
+--     compares text. The placeholder pins comparison by code point, so that
+--     every supported database returns the same order. It is empty where
+--     that is already the default.
 
 create table category (
   catid varchar(10) not null,

@@ -1,0 +1,26 @@
+# Backing services for the Docker-backed run modes.
+#
+#   docker compose up -d postgres     then run with the "postgres" profile
+#
+# The default run mode needs none of this: it uses an embedded database.
+# Credentials here are for local development only.
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: petstore
+      POSTGRES_USER: petstore
+      POSTGRES_PASSWORD: petstore
+    ports:
+      - "5432:5432"
+    volumes:
+      - petstore-postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U petstore -d petstore"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  petstore-postgres:

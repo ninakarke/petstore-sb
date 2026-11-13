@@ -179,6 +179,19 @@ public abstract class CatalogStoreContract {
   }
 
   @Test
+  @DisplayName("names are ordered by code point on every store: capitals before lower-case")
+  void namesAreOrderedByCodePointOnEveryStore() {
+    store().saveCategory("CASE", Map.of(EN, category("Case")));
+    store().saveProduct("CS-01", "CASE", Map.of(EN, product("albino Finch", "Rare")));
+    store().saveProduct("CS-02", "CASE", Map.of(EN, product("Zebra Finch", "Common")));
+
+    // A language-aware sort would put "albino" first and move both products to other pages.
+    assertThat(store().findProducts("CASE", EN, 0, 10).items())
+        .extracting(Product::name)
+        .containsExactly("Zebra Finch", "albino Finch");
+  }
+
+  @Test
   void onlyProductsWithTextInTheLocaleAreListed() {
     assertThat(store().findProducts("FISH", JA, 0, 10).items())
         .extracting(Product::id)
