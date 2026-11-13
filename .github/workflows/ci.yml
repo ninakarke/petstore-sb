@@ -3,6 +3,10 @@ name: CI
 # Every push and pull request runs the same gates a developer runs locally
 # with `./mvnw verify`: toolchain enforcement, tests, formatting, coverage,
 # module boundaries and architecture rules.
+#
+# The tests cover all three data stores in one run: embedded H2, and
+# PostgreSQL and MongoDB servers that the tests start themselves in
+# containers (the runner has Docker). No database has to be set up here.
 
 on:
   push:
