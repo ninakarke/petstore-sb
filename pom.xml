@@ -18,6 +18,10 @@
 
   <properties>
     <java.version>21</java.version>
+    <spotless.version>3.11.0</spotless.version>
+    <jacoco.version>0.8.16</jacoco.version>
+    <!-- Minimum line coverage for the whole application; the build fails below it. -->
+    <coverage.minimum>0.80</coverage.minimum>
   </properties>
 
   <dependencies>
@@ -86,6 +90,84 @@
                   </excludes>
                   <message>Legacy javax.* enterprise APIs are not allowed; use the jakarta.* equivalents.</message>
                 </bannedDependencies>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--
+        Formatting gate. One mechanical style for every file, checked on every
+        build, so reviews are about behaviour and never about layout.
+        Run `./mvnw spotless:apply` to format.
+      -->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <java>
+            <googleJavaFormat/>
+            <removeUnusedImports/>
+          </java>
+        </configuration>
+        <executions>
+          <execution>
+            <id>check-format</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--
+        Coverage gate. The legacy application had no tests at all; the migrated
+        one must not fall below the minimum. The report is written to
+        target/site/jacoco.
+      -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco.version}</version>
+        <configuration>
+          <excludes>
+            <exclude>com/petstore/PetstoreApplication.class</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>check-coverage</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>${coverage.minimum}</minimum>
+                    </limit>
+                  </limits>
+                </rule>
               </rules>
             </configuration>
           </execution>
