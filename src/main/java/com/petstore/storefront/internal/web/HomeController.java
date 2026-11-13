@@ -26,6 +26,7 @@ class HomeController {
   @GetMapping("/")
   String home(Model model) {
     model.addAttribute("splashAvailable", pictures.isLocal(SPLASH));
+    model.addAttribute("showAdviceBanner", true);
     return "home";
   }
 }

@@ -39,6 +39,8 @@ class CartPagesController {
   @GetMapping("/cart")
   String show(Model model) {
     model.addAttribute("cart", cart.view());
+    // The cart is one of the two legacy screens that showed the pet-tips banner.
+    model.addAttribute("showAdviceBanner", true);
     return "cart/cart";
   }
 

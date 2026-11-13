@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<!--/*
+  Legacy equivalent: mylist.jsp, the "My List" box with the products of the
+  customer's favourite category. Shown only to a signed-in customer who has
+  the feature switched on.
+*/-->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <body>
+    <aside class="mylist" th:fragment="mylist" th:if="${myList != null and !myList.isEmpty()}">
+      <section class="panel">
+        <h2 class="panel-title" th:text="#{mylist.title}">My List</h2>
+        <ul class="panel-body">
+          <li th:each="product : ${myList}">
+            <a th:href="@{/products/{id}(id=${product.id})}" href="#" th:text="${product.name}">Iguana</a>
+          </li>
+        </ul>
+      </section>
+    </aside>
+  </body>
+</html>

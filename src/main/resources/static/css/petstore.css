@@ -329,3 +329,18 @@ a {
   margin: 0.25rem 0 0;
   padding-left: 1.25rem;
 }
+
+.mylist {
+  flex: 0 0 18%;
+  min-width: 8rem;
+}
+
+.advice-banner {
+  padding: 0.5rem 0;
+  text-align: center;
+}
+
+.advice-banner img {
+  max-width: 100%;
+  height: auto;
+}

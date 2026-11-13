@@ -21,6 +21,10 @@
     <div class="page">
       <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
       <div class="content" th:insert="${content}"></div>
+      <aside th:replace="~{fragments/mylist :: mylist}"></aside>
+    </div>
+    <div class="advice-banner" th:if="${showAdviceBanner != null and adviceBanner != null}">
+      <img th:src="@{/images/{name}(name=${adviceBanner})}" th:alt="#{advice.alt}" />
     </div>
     <footer th:replace="~{fragments/footer :: footer}"></footer>
   </body>
