@@ -38,8 +38,12 @@ public class CatalogService {
   /**
    * All categories, ordered by name. Shown in the sidebar of every page, so the result is cached,
    * as the legacy sidebar was.
+   *
+   * <p>An empty list is never cached. The catalog is empty only in the moment between the
+   * application starting to answer requests and its seed data being loaded; a list cached in that
+   * moment would hide the whole catalog until the cache entry expired.
    */
-  @Cacheable(cacheNames = "catalog.categories")
+  @Cacheable(cacheNames = "catalog.categories", unless = "#result.isEmpty()")
   public List<Category> categories() {
     return store.findCategories();
   }
