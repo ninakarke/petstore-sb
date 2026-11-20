@@ -18,7 +18,7 @@
 
   <properties>
     <java.version>21</java.version>
-    <spring-modulith.version>2.1.1</spring-modulith.version>
+    <spring-modulith.version>2.1.2</spring-modulith.version>
     <!-- Kept equal to the ArchUnit version Spring Modulith brings in. -->
     <archunit.version>1.4.2</archunit.version>
     <spotless.version>3.11.0</spotless.version>
